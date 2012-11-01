@@ -1,0 +1,6 @@
+__pycache__
+*.pyc
+demain.sqlite
+demain.egg-info/
+.idea/
+.coverage
