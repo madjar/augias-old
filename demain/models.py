@@ -45,7 +45,7 @@ class Task(Base):
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True)
     name = Column(Text)
-    length = Column(Integer) # minutes
+    length = Column(Integer) # minutes TODO useless column, remove at some point
     periodicity = Column(Integer) # days
     last_execution = Column(DateTime, default=datetime.datetime.now)
 

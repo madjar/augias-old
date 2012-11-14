@@ -16,11 +16,10 @@ def index(request):
 
 @view_config(route_name='execute')
 def execute(request):
-    print(request.params)
     if not request.user:
         raise Forbidden()
     length = int(request.params['length']) # TODO validation (ValueError)
-    task = DBSession.query(Task).get(request.params['task_id'])
+    task = DBSession.query(Task).get(request.matchdict['task_id'])
     task.execute(request.user, length)
     return HTTPFound(request.route_path('index'))
 
