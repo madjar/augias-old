@@ -11,6 +11,12 @@
 </head>
 <body>
 <div class="container">
+    % for message in request.session.pop_flash():
+        <div class="alert">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            ${message}
+        </div>
+    % endfor
     ${next.body()}
 </div>
 </body>

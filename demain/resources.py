@@ -1,6 +1,8 @@
+from pyramid.security import Allow, Authenticated
 from demain.models import Task, DBSession
 
 class TaskContainer:
+    __acl__ = [(Allow, Authenticated, 'execute')]
     __root__ = __name__ = None
     def __init__(self, request):
         self.request = request

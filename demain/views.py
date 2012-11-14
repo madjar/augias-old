@@ -14,14 +14,15 @@ def index(context, request):
     return {'tasks': context}
 
 
-@view_config(context=Task, name='execute')
-def execute(request):
-    if not request.user:
-        raise Forbidden()
-    length = int(request.params['length']) # TODO validation (ValueError)
-    task = DBSession.query(Task).get(request.matchdict['task_id'])
-    task.execute(request.user, length)
-    return HTTPFound(request.route_path('index'))
+@view_config(context=Task, name='execute', permission='execute')
+def execute(context, request):
+    try:
+        length = int(request.params['length'])
+    except ValueError:
+        request.session.flash('Invalid length "%s"'%request.params['length'])
+    else:
+        context.execute(request.user, length)
+    return HTTPFound(request.resource_url(context))
 
 @view_config(context=Task, renderer='task.mako')
 def task(context, request):
