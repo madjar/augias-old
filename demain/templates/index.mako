@@ -16,9 +16,9 @@ ${request.persona_button}
             <tr class="${task.emergency()}">
                 <td>${task.name}</td>
                 <td>${task.periodicity}</td>
-                <td><a href="${request.route_path('task', task_id=task.id)}">${task.last_execution.strftime('%d/%m/%y %H:%M')}</a></td>
+                <td><a href="${request.resource_path(task)}">${task.last_execution.strftime('%d/%m/%y %H:%M')}</a></td>
                 <td>
-                    <a href="${request.route_path('task', task_id=task.id)}" class="btn btn-small">Execute</a>
+                    <a href="${request.resource_path(task)}" class="btn btn-small">Execute</a>
                 </td>
             </tr>
             %endfor

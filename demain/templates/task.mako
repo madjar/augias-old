@@ -5,7 +5,7 @@
     <button class="btn btn-primary" id="chrono">Start chrono</button>
     <p id="time"></p>
 </div>
-<form class="form-inline" method="POST" action="${request.route_path('execute', task_id=task.id)}">
+<form class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
         <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
         <input type="hidden" name="task_id"/>
         <button class="btn btn-primary" type="submit">Execute</button>

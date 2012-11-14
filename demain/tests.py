@@ -26,6 +26,7 @@ class TestMyView(unittest.TestCase):
 
     def test_it(self):
         from .views import index
+        from .resources import TaskContainer
         request = testing.DummyRequest()
-        result = index(request)
-        self.assertEqual(result['tasks'][0].name, 'some task')
+        result = index(TaskContainer(request), request)
+        self.assertEqual(list(result['tasks'])[0].name, 'some task')

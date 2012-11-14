@@ -1,5 +1,6 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
+from demain.resources import TaskContainer
 
 from .models import (
     DBSession,
@@ -12,14 +13,14 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
-    config = Configurator(settings=settings)
+    config = Configurator(settings=settings, root_factory=TaskContainer)
     config.include('pyramid_persona')
     config.add_request_method(get_user, 'user', reify=True)
 
     config.add_static_view('static', 'static', cache_max_age=3600)
-    config.add_route('index', '/')
-    config.add_route('execute', '/task/{task_id}/execute')
-    config.add_route('task', '/task/{task_id}')
+#    config.add_route('index', '/')
+#    config.add_route('execute', '/task/{task_id}/execute')
+#    config.add_route('task', '/task/{task_id}')
     config.scan()
     return config.make_wsgi_app()
 
