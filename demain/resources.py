@@ -9,7 +9,7 @@ class TaskContainer:
 
     def __getitem__(self, item):
         task = DBSession.query(Task).get(item)
-        if not task:
+        if not task: # pragma: nocover
             raise KeyError()
         task.__name__ = item
         task.__parent__ = self
