@@ -76,7 +76,7 @@ class Execution(Base):
     id = Column(Integer, primary_key=True)
     executor_id = Column(Integer, ForeignKey('users.id'))
     task_id = Column(Integer, ForeignKey('tasks.id'))
-    executor = relationship('User', backref='executions')
+    executor = relationship('User', backref='executions')  # empty means collective work
     task = relationship('Task', backref='executions')
     time = Column(DateTime)
     length = Column(Integer)

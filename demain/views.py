@@ -21,7 +21,8 @@ def execute(context, request):
     except ValueError:
         request.session.flash('Invalid length "%s"'%request.params['length'])
     else:
-        context.execute(request.user, length)
+        executor = request.user if not request.params.get('collective') else None
+        context.execute(executor, length)
     return HTTPFound(request.resource_url(context))
 
 @view_config(context=Task, renderer='task.mako')

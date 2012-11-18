@@ -6,15 +6,18 @@
     <p id="time"></p>
 </div>
 <form class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
-        <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
-        <input type="hidden" name="task_id"/>
-        <button class="btn btn-primary" type="submit">Execute</button>
+    <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
+    <label class="checkbox">
+        <input name="collective" type="checkbox"> Collective execution
+    </label>
+    <input type="hidden" name="task_id"/>
+    <button class="btn btn-primary" type="submit">Execute</button>
 </form>
 
 <ul>
-    %for execution in task.executions:
-    <li>${execution.time.strftime('%d/%m/%y %H:%M')} for ${execution.length} minutes by ${execution.executor}</li>
-    %endfor
+        %for execution in task.executions:
+            <li>${execution.time.strftime('%d/%m/%y %H:%M')} for ${execution.length} minutes by ${execution.executor or "everybody"}</li>
+        %endfor
 </ul>
 
 <script type="text/javascript">
