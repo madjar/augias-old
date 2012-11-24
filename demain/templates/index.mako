@@ -1,26 +1,8 @@
 <%inherit file="base.mako"/>
-Logged in as ${request.user}.
-${request.persona_button}
+<%namespace name="h" file="helpers.mako"/>
 
-<table class="table table-hover">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Periodicity</th>
-        <th>Last execution</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-            %for task in tasks:
-            <tr class="${task.emergency()}">
-                <td>${task.name}</td>
-                <td>${task.periodicity}</td>
-                <td><a href="${request.resource_path(task)}">${task.last_execution.strftime('%d/%m/%y %H:%M')}</a></td>
-                <td>
-                    <a href="${request.resource_path(task)}" class="btn btn-small">Execute</a>
-                </td>
-            </tr>
-            %endfor
-    </tbody>
-</table>
+<h2>Urgent tasks</h2>
+${h.display_tasks(urgent_tasks)}
+
+<h2>All tasks</h2>
+${h.display_tasks(tasks)}

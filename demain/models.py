@@ -1,4 +1,5 @@
 import datetime
+from pyramid.decorator import reify
 from pyramid.security import authenticated_userid
 from sqlalchemy import (
     Column,
@@ -58,15 +59,24 @@ class Task(Base):
         DBSession.add(execution)
         self.last_execution = now
 
+    @reify
     def emergency(self):
+        if not self.last_execution:
+            return 0
         days_since = (datetime.datetime.now() - self.last_execution).days
-        ratio = days_since / self.periodicity
+        return days_since / self.periodicity
+
+    def emergency_class(self):
+        if not self.last_execution:
+            return 'never-done'
+
+        ratio = self.emergency
         if ratio >= 1:
-            return 'error'
+            return 'overdue'
         elif ratio >= 0.8:
-            return 'warning'
+            return 'urgent'
         elif ratio <= 0.1:
-            return 'success'
+            return 'just-done'
         else:
             return ''
 

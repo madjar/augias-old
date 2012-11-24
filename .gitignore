@@ -4,3 +4,7 @@ demain.sqlite
 demain.egg-info/
 .idea/
 .coverage
+cover/
+dist/
+*.bak
+*~

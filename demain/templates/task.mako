@@ -1,18 +1,27 @@
 <%inherit file="base.mako"/>
-<h2>Logs for ${task.name}</h2>
+<%namespace name="h" file="helpers.mako"/>
 
-<div>
-    <button class="btn btn-primary" id="chrono">Start chrono</button>
-    <p id="time"></p>
+<h2>${task.name}</h2>
+
+<div class="row">
+    <div class="span3">${h._display_task(task)}</div>
+    <div class="span9">
+##        TODO : aligner ça correctment
+        <div style="padding: 10px 0;">
+            <button class="btn btn-primary" id="chrono">Start chrono</button>
+            <span id="time"></span>
+        </div>
+        <form class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
+            <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
+            <label class="checkbox">
+                <input name="collective" type="checkbox"> Collective execution
+            </label>
+            <input type="hidden" name="task_id"/>
+            <button class="btn btn-primary" type="submit">Execute</button>
+        </form>
+    </div>
 </div>
-<form class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
-    <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
-    <label class="checkbox">
-        <input name="collective" type="checkbox"> Collective execution
-    </label>
-    <input type="hidden" name="task_id"/>
-    <button class="btn btn-primary" type="submit">Execute</button>
-</form>
+
 
 <ul>
         %for execution in task.executions:
