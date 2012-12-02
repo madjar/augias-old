@@ -23,7 +23,7 @@ def create_and_populate(engine=None):
     from .models import Base, Task
     Base.metadata.create_all(engine)
     with transaction.manager:
-        task = Task(name='some task', length=15, periodicity=7)
+        task = Task(name='some task', periodicity=7)
         DBSession.add(task)
 
 class TestMyView(unittest.TestCase):
