@@ -1,3 +1,4 @@
+## Display on task. Put it in a span3 if you don't want it to too long
 <%def name="_display_task(task)">
     <a href="${request.resource_path(task)}" class="task-link">
         <div class="task ${task.emergency_class()}">
@@ -8,6 +9,8 @@
     </a>
 </%def>
 
+
+## Display a list of tasks in a nice grid
 <%def name="display_tasks(tasks)">
     <% tasks = list(reversed(tasks)) %>
     % while tasks:

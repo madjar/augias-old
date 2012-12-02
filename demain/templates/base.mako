@@ -12,19 +12,26 @@
 </head>
 <body>
 
+    <%def name="menu_item(obj, name)">
+        <li
+            %if request.context == obj:
+                class="active"
+            %endif
+                ><a href="${request.resource_url(obj)}">${name}</a></li>
+    </%def>
 
 <div class="container">
     <div class="navbar">
         <div class="navbar-inner">
             <div class="container">
-                <a class="brand" href="#">Demain</a>
+                <a class="brand" href="${request.resource_url(request.root)}">Demain</a>
                 <ul class="nav">
-                    <li ><a href="${request.resource_url(request.root)}">Dashboard</a></li>
+                    ${menu_item(request.root, "Dashboard")}
                 </ul>
                 % if request.user:
-                    <div class="navbar-text pull-right">Logged in as ${request.user}. <a id="signout" href="#">logout</a></div>
+                        <div class="navbar-text pull-right">Logged in as ${request.user}. <a id="signout" href="#">logout</a></div>
                 % else:
-                    <div class="navbar-form pull-right"><button id="signin" class="btn">Sign In</button></div>
+                        <div class="navbar-form pull-right"><button id="signin" class="btn">Sign In</button></div>
                 % endif
             </div>
         </div>
