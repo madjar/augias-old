@@ -8,6 +8,7 @@ import warnings
 from .models import DBSession
 
 # Cached because this may take some time
+# TODO : cache this on the disk
 _email_assertion = None
 def get_email_and_assertion(audience):
     global _email_assertion
@@ -19,12 +20,17 @@ def get_email_and_assertion(audience):
     return _email_assertion
 
 
-def create_and_populate(engine=None):
-    from .models import Base, Task
+def create_and_populate(engine=None, email=None):
+    from .models import Base, Task, Page, User
     Base.metadata.create_all(engine)
     with transaction.manager:
-        task = Task(name='some task', periodicity=7)
-        DBSession.add(task)
+        page = Page(name='some page')
+        task = Task(name='some task', periodicity=7, page=page)
+        DBSession.add_all([page, task])
+        if email:
+            user = User(email=email, pages=[page])
+            DBSession.add(user)
+
 
 class TestMyView(unittest.TestCase):
     def setUp(self):
@@ -39,10 +45,11 @@ class TestMyView(unittest.TestCase):
         testing.tearDown()
 
     def test_it(self):
-        from .views import index
-        from .resources import TaskContainer
+        from .views import page
+        from .models import Page
+        p = Page.query().get(1)
         request = testing.DummyRequest()
-        result = index(TaskContainer(request), request)
+        result = page(p, request)
         self.assertEqual(list(result['tasks'])[0].name, 'some task')
 
 class FunctionalTests(unittest.TestCase):
@@ -54,11 +61,13 @@ class FunctionalTests(unittest.TestCase):
             'persona.secret': 'Testing secret',
             'persona.verifier': 'browserid.LocalVerifier',
             'mako.directories': 'demain:templates',
+            'pyramid.debug_authorization': 'true',
         }
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             app = main({}, **config)
-        create_and_populate()
+        self.email, self.assertion = get_email_and_assertion('http://example.com')
+        create_and_populate(email=self.email)
         from webtest import TestApp
         self.testapp = TestApp(app)
 
@@ -66,30 +75,29 @@ class FunctionalTests(unittest.TestCase):
         DBSession.remove()
 
     def _login(self):
-        email, assertion = get_email_and_assertion('http://example.com')
-        res = self.testapp.get('/')
+        res = self.testapp.get('/', status=403)
         token = re.findall(r'csrf_token:\s"([0-9a-f]*)"', res.unicode_body)[0]
-        self.testapp.post('/login', {'assertion': assertion, 'csrf_token': token})
-        return email
+        self.testapp.post('/login', {'assertion': self.assertion, 'csrf_token': token})
 
     def test_index(self):
-        res = self.testapp.get('/', status=200)
+        self._login()
+        res = self.testapp.get('/1', status=200)
         self.assertIn('some task', res.unicode_body)
 
     def test_task(self):
-        res = self.testapp.get('/1')
+        self._login()
+        res = self.testapp.get('/1/1')
         self.assertIn('<h2>some task</h2>', res.unicode_body)
 
-    def test_execute_unauthorized(self):
-        res = self.testapp.get('/1')
-        res = res.form.submit(status=403)
+    def test_unauthorized(self):
+        res = self.testapp.get('/1', status=403)
 
     def test_execute(self):
-        email = self._login()
-        res = self.testapp.get('/1')
+        self._login()
+        res = self.testapp.get('/1/1')
         form = res.form
         form['length'] = 15
         form['collective'] = 0
         res = form.submit(status=302)
         res = res.follow()
-        self.assertIn('for 15 minutes by %s'%email, res.unicode_body)
+        self.assertIn('for 15 minutes by %s'%self.email, res.unicode_body)

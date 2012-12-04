@@ -1,11 +1,10 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
-from demain.resources import TaskContainer
 
 from .models import (
     DBSession,
     Base,
-    get_user)
+    get_user, Root)
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -13,7 +12,7 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
-    config = Configurator(settings=settings, root_factory=TaskContainer)
+    config = Configurator(settings=settings, root_factory=Root)
     config.include('pyramid_persona')
     config.add_request_method(get_user, 'user', reify=True)
 
