@@ -37,7 +37,7 @@
         </div>
     </div>
     % for message in request.session.pop_flash():
-            <div class="alert ${'alert-'+message.clazz if message.clazz else ''}">
+            <div class="alert ${message.cssclass() if hasattr(message, 'level') else 'alert-info'}">
                 <button type="button" class="close" data-dismiss="alert">×</button>
             ${message}
             </div>

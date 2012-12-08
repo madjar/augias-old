@@ -14,6 +14,7 @@ def main(global_config, **settings):
     Base.metadata.bind = engine
     config = Configurator(settings=settings, root_factory=Root)
     config.include('pyramid_persona')
+    config.include('demain.utils.flash')
     config.add_request_method(get_user, 'user', reify=True)
 
     config.add_static_view('static', 'static', cache_max_age=3600)
