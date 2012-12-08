@@ -8,15 +8,22 @@ import warnings
 from .models import DBSession
 
 # Cached because this may take some time
-# TODO : cache this on the disk
+ASSERTION_CACHE_FILE = '/tmp/persona_email_assertion'
+# TODO : I should make this more clean at some point, maybe in a library
 _email_assertion = None
 def get_email_and_assertion(audience):
     global _email_assertion
     if not _email_assertion:
-        import requests
-        from urllib.parse import quote_plus
-        r = requests.get('http://personatestuser.org/email_with_assertion/%s'%quote_plus(audience))
-        _email_assertion = r.json['email'], r.json['assertion']
+        import pickle
+        try:
+            _email_assertion = pickle.load(open(ASSERTION_CACHE_FILE, 'rb'))
+            # TODO : this may crash if the assertion is too old
+        except FileNotFoundError:
+            import requests
+            from urllib.parse import quote_plus
+            r = requests.get('http://personatestuser.org/email_with_assertion/%s'%quote_plus(audience))
+            _email_assertion = r.json['email'], r.json['assertion']
+            pickle.dump(_email_assertion, open(ASSERTION_CACHE_FILE, 'wb'))
     return _email_assertion
 
 
