@@ -23,6 +23,7 @@
     </div>
 </div>
 
+<p>Means execution time : ${'{:.1f}'.format(task.mean_execution)} minutes.</p>
 
 <ul>
         %for execution in task.executions:

@@ -110,6 +110,18 @@ class Task(Base):
         else:
             return ''
 
+    @property
+    def mean_execution(self):
+        """This is the mean execution time over the 10 last executions"""
+        # TODO : cache this or set this as a field
+
+        executions = (Execution.query()
+                      .filter_by(task=self).filter(Execution.length != None)
+                      .order_by(Execution.time.desc())[:10])
+        if not executions:
+            return 0
+        return sum(e.length for e in executions) / len(executions)
+
 
 class Execution(Base):
     __tablename__ = 'executions'
