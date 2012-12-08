@@ -1,9 +1,8 @@
-import datetime
 from operator import attrgetter
-import random
 from pyramid.exceptions import Forbidden
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
+from demain.utils import FlashMessage
 
 from .models import (
     DBSession,
@@ -37,7 +36,7 @@ def execute(context, request):
     else:
         executor = request.user if not request.params.get('collective') else None
         context.execute(executor, length)
-        request.session.flash('Task executed')
+        request.session.flash(FlashMessage('Task executed', 'success'))
     return HTTPFound(request.resource_url(context))
 
 @view_config(context=Task, renderer='task.mako', permission='access')
