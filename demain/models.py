@@ -119,7 +119,7 @@ class Execution(Base):
     executor = relationship('User', backref='executions')  # empty means collective work
     task = relationship('Task', backref='executions')
     time = Column(DateTime)
-    length = Column(Integer)
+    length = Column(Integer)  # empty means no data
 
 
 page_authorizations = Table('page_authorizations', Base.metadata,

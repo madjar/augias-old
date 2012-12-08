@@ -30,7 +30,10 @@ def page(context, request):
 @view_config(context=Task, name='execute', permission='access')
 def execute(context, request):
     try:
-        length = int(request.params['length'])
+        if not request.params['length']:
+            length = None
+        else:
+            length = int(request.params['length'])
     except ValueError:
         request.session.flash('Invalid length "%s"'%request.params['length'])
     else:

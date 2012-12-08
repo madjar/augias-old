@@ -100,4 +100,5 @@ class FunctionalTests(unittest.TestCase):
         form['collective'] = 0
         res = form.submit(status=302)
         res = res.follow()
-        self.assertIn('for 15 minutes by %s'%self.email, res.unicode_body)
+        self.assertIn('for 15 minutes', res.unicode_body)
+        self.assertIn('by %s'%self.email, res.unicode_body)

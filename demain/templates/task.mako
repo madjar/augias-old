@@ -19,13 +19,18 @@
             <input type="hidden" name="task_id"/>
             <button class="btn btn-primary" type="submit">Execute</button>
         </form>
+        <p>If you're not sure, leave the duration empty and it will be ignored in the statistics.</p>
     </div>
 </div>
 
 
 <ul>
         %for execution in task.executions:
-            <li>${execution.time.strftime('%d/%m/%y %H:%M')} for ${execution.length} minutes by ${execution.executor or "everybody"}</li>
+            <li>${execution.time.strftime('%d/%m/%y %H:%M')}
+                %if execution.length is not None:
+                    for ${execution.length} minutes
+                %endif
+            by ${execution.executor or "everybody"}</li>
         %endfor
 </ul>
 
