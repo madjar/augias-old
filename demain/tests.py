@@ -33,7 +33,7 @@ def get_email_and_assertion(audience):
         import requests
         from urllib.parse import quote_plus
         r = requests.get('http://personatestuser.org/email_with_assertion/%s'%quote_plus(audience))
-        _email_assertion = r.json['email'], r.json['assertion']
+        _email_assertion = r.json()['email'], r.json()['assertion']
         pickle.dump(_email_assertion, open(ASSERTION_CACHE_FILE, 'wb'))
     return _email_assertion
 
