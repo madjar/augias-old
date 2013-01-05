@@ -19,6 +19,12 @@ def home(request):
         raise Exception('Multiple pages : not handled yet')
 
 
+@view_config(context=Root, name='change_username', check_csrf=True, request_method='POST')
+def change_username(context, request):
+    request.user.name = request.params['username']
+    return HTTPFound(request.referer)
+
+
 @view_config(context=Page, renderer='page.mako', permission='access')
 def page(context, request):
     tasks = list(context)

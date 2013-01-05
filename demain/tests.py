@@ -70,6 +70,7 @@ class TestMyView(unittest.TestCase):
         result = page(p, request)
         self.assertEqual(list(result['tasks'])[0].name, 'some task')
 
+
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
         from demain import main
@@ -79,7 +80,6 @@ class FunctionalTests(unittest.TestCase):
             'persona.secret': 'Testing secret',
             'persona.verifier': 'browserid.LocalVerifier',
             'mako.directories': 'demain:templates',
-            'pyramid.debug_authorization': 'true',
         }
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -113,7 +113,7 @@ class FunctionalTests(unittest.TestCase):
     def test_execute(self):
         self._login()
         res = self.testapp.get('/1/1')
-        form = res.form
+        form = res.forms['execution']
         form['length'] = 15
         form['collective'] = 0
         res = form.submit(status=302)

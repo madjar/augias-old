@@ -11,7 +11,7 @@
             <button class="btn btn-primary" id="chrono">Start chrono</button>
             <span id="time"></span>
         </div>
-        <form class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
+        <form id='execution' class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
             <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
             <label class="checkbox">
                 <input name="collective" type="checkbox"> Collective execution

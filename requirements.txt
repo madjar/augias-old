@@ -15,12 +15,12 @@ pyramid==1.4
 repoze.lru==0.6
 requests==1.0.4
 SQLAlchemy==0.7.9
-transaction==1.4.0b1
+transaction==1.4.0
 translationstring==1.1
 venusian==1.0a7
 waitress==0.8.2
 WebOb==1.2.3
 WebTest==1.4.3
-zope.deprecation==4.0.1
-zope.interface==4.0.2
+zope.deprecation==4.0.2
+zope.interface==4.0.3
 zope.sqlalchemy==0.7.1
