@@ -1,11 +1,9 @@
 import unittest
-import transaction
 import re
-
-from pyramid import testing
+import transaction
 import warnings
+from demain.models import DBSession
 
-from .models import DBSession
 
 # Cached because this may take some time
 ASSERTION_CACHE_FILE = '/tmp/persona_email_assertion'
@@ -23,13 +21,13 @@ def get_email_and_assertion(audience):
             _, assertion = unbundle_certs_and_assertion(email_assertion[1])
             exp = decode_json_bytes(assertion.split('.')[1])['exp']
             expiration_date = datetime.datetime.utcfromtimestamp(exp/1000)
-            if expiration_date < datetime.datetime.now():
+            if expiration_date > datetime.datetime.utcnow():
                 # If it hasn't expired, return
                 _email_assertion = email_assertion
                 return email_assertion
         except FileNotFoundError:
             pass
-        # If no good one is available, get a new one
+            # If no good one is available, get a new one
         import requests
         from urllib.parse import quote_plus
         r = requests.get('http://personatestuser.org/email_with_assertion/%s'%quote_plus(audience))
@@ -39,7 +37,7 @@ def get_email_and_assertion(audience):
 
 
 def create_and_populate(engine=None, email=None):
-    from .models import Base, Task, Page, User
+    from demain.models import Base, Task, Page, User
     Base.metadata.create_all(engine)
     with transaction.manager:
         page = Page(name='some page')
@@ -48,27 +46,6 @@ def create_and_populate(engine=None, email=None):
         if email:
             user = User(email=email, pages=[page])
             DBSession.add(user)
-
-
-class TestMyView(unittest.TestCase):
-    def setUp(self):
-        self.config = testing.setUp()
-        from sqlalchemy import create_engine
-        engine = create_engine('sqlite://')
-        DBSession.configure(bind=engine)
-        create_and_populate(engine)
-
-    def tearDown(self):
-        DBSession.remove()
-        testing.tearDown()
-
-    def test_it(self):
-        from .views import page
-        from .models import Page
-        p = Page.query().get(1)
-        request = testing.DummyRequest()
-        result = page(p, request)
-        self.assertEqual(list(result['tasks'])[0].name, 'some task')
 
 
 class FunctionalTests(unittest.TestCase):
@@ -80,7 +57,7 @@ class FunctionalTests(unittest.TestCase):
             'persona.secret': 'Testing secret',
             'persona.verifier': 'browserid.LocalVerifier',
             'mako.directories': 'demain:templates',
-        }
+            }
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             app = main({}, **config)

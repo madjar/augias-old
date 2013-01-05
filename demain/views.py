@@ -33,6 +33,10 @@ def page(context, request):
     return {'tasks': tasks, 'urgent_tasks': urgent_tasks}
 
 
+@view_config(context=Task, renderer='task.mako', permission='access')
+def task(context, request):
+    return {'task': context}
+
 @view_config(context=Task, name='execute', permission='access')
 def execute(context, request):
     try:
@@ -48,7 +52,3 @@ def execute(context, request):
         context.execute(executor, length)
         request.flash_success('Task executed')
     return HTTPFound(request.resource_url(context))
-
-@view_config(context=Task, renderer='task.mako', permission='access')
-def task(context, request):
-    return {'task': context}
