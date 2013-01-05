@@ -6,7 +6,7 @@ from demain.utils import FlashMessage
 
 from .models import (
     DBSession,
-    Task, Page, Root)
+    Task, Page, Root, User)
 
 @view_config(context=Root)
 def home(request):
@@ -43,7 +43,8 @@ def execute(context, request):
     except ValueError:
         request.flash_error('Invalid length "%s"'%request.params['length'])
     else:
-        executor = request.user if not request.params.get('collective') else None
+        executor_email = request.params['executor']
+        executor = DBSession.query(User).filter_by(email=executor_email).one() if executor_email else None
         context.execute(executor, length)
         request.flash_success('Task executed')
     return HTTPFound(request.resource_url(context))

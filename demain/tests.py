@@ -115,7 +115,6 @@ class FunctionalTests(unittest.TestCase):
         res = self.testapp.get('/1/1')
         form = res.forms['execution']
         form['length'] = 15
-        form['collective'] = 0
         res = form.submit(status=302)
         res = res.follow()
         self.assertIn('for 15 minutes', res.unicode_body)

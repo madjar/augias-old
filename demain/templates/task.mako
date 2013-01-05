@@ -13,9 +13,12 @@
         </div>
         <form id='execution' class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}">
             <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
-            <label class="checkbox">
-                <input name="collective" type="checkbox"> Collective execution
-            </label>
+            <select name="executor">
+                %for user in task.page.users:
+                        <option value="${user.email}" ${'selected' if user == request.user else ''}>${user}</option>
+                %endfor
+                <option value="">Collective execution</option>
+            </select>
             <input type="hidden" name="task_id"/>
             <button class="btn btn-primary" type="submit">Execute</button>
         </form>
