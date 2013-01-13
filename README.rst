@@ -12,3 +12,8 @@ Getting Started
 
 - $venv/bin/pserve development.ini
 
+
+Extra stuff
+-----------
+
+https://trello.com/board/augias/508ed2d9387deed05f000999
