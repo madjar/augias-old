@@ -1,7 +1,7 @@
-alembic==0.4.1
+alembic==0.4.2
 blessings==1.5
 Chameleon==2.11
-coverage==3.6b3
+coverage==3.6
 decorator==3.4.0
 Mako==0.7.3
 MarkupSafe==0.15
@@ -13,7 +13,7 @@ pyramid-persona==1.2
 pyramid-tm==0.5
 pyramid==1.4
 repoze.lru==0.6
-requests==1.0.4
+requests==1.1.0
 SQLAlchemy==0.7.9
 transaction==1.4.0
 translationstring==1.1
