@@ -19,7 +19,7 @@ from ..models import (
 def usage(argv):
     cmd = os.path.basename(argv[0])
     print('usage: %s <config_uri>\n'
-          '(example: "%s development.ini")' % (cmd, cmd)) 
+          '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
 
 def main(argv=sys.argv):
@@ -31,9 +31,3 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
-    with transaction.manager:
-        with open('/files/taches.csv', encoding='latin1') as f:
-            reader = csv.reader(f, delimiter=';')
-            for name, length, periodicity in reader:
-                task = Task(name=name, length=length, periodicity=periodicity)
-                DBSession.add(task)

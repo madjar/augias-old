@@ -3,7 +3,6 @@ from unittest.mock import create_autospec
 from pyramid import testing
 from demain.tests import TestCase
 from demain.models import Root, User, Page, Task, DBSession, Execution
-from demain.tests.test_functional import create_and_populate
 
 class UserTest(TestCase):
     def test_change_username(self):
@@ -105,3 +104,17 @@ class TaskTest(TestCase):
 
         self.assertEqual(result.code, 302)
         request.flash_error.assert_called_once_with('Invalid length "this is no integer"')
+
+    def test_execute_with_colon_duration(self):
+        from demain.views import execute
+        task = self._get_task()
+        user = User(email='tagada@example.com')
+        DBSession.add(user)
+        request = testing.DummyRequest({'length': '1:30:41', 'executor': user.email})
+        request.flash_success = create_autospec(lambda x: None)
+
+        result = execute(task, request)
+
+        self.assertEqual(result.code, 302)
+        execution = DBSession.query(Execution).one()
+        self.assertEqual(execution.length, 91)

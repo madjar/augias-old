@@ -42,6 +42,15 @@ def execute(context, request):
     try:
         if not request.params['length']:
             length = None
+        elif ':' in request.params['length']:
+            parts = request.params['length'].split(':')
+            if len(parts) > 3:
+                raise ValueError()
+            length = int(parts[-2])
+            if int(parts[-1]) >= 30:
+                length +=1
+            if len(parts) == 3:
+                length += 60 * int(parts[0])
         else:
             length = int(request.params['length'])
     except ValueError:
