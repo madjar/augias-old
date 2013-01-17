@@ -10,12 +10,7 @@
     <div class="span3 well" >
         <h3>Recent executions</h3>
         %for execution in last_executions:
-            <p>${execution.task.name} <span class="muted">by</span> ${execution.executor}
-                <span class="muted">-</span> ${h.nice_date(execution.time)}
-                %if execution.length is not None:
-                        (${execution.length} mins)
-                %endif
-            </p>
+            <p>${h.display_execution(execution)}</p>
         %endfor
     </div>
 </div>

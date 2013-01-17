@@ -30,11 +30,7 @@
 
 <ul>
         %for execution in task.executions:
-            <li>${execution.time.strftime('%d/%m/%y %H:%M')}
-                %if execution.length is not None:
-                    for ${execution.length} minutes
-                %endif
-            by ${execution.executor or "everybody"}</li>
+            <li>${h.display_execution(execution, name=False)}</li>
         %endfor
 </ul>
 

@@ -43,3 +43,14 @@
 <%def name="nice_date(date)">
     ${nice_date(date)}
 </%def>
+
+<%def name="display_execution(execution, name=True)">
+    %if name:
+        ${execution.task.name} <span class="muted">by</span>
+    %endif
+    ${execution.executor or "everybody"}
+    <span class="muted">&ndash;</span> ${nice_date(execution.time)}
+    %if execution.length is not None:
+        (${execution.length} mins)
+    %endif
+</%def>
