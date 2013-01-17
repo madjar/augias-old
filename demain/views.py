@@ -6,7 +6,7 @@ from demain.utils import FlashMessage
 
 from .models import (
     DBSession,
-    Task, Page, Root, User)
+    Task, Page, Root, User, Execution)
 
 @view_config(context=Root)
 def home(request):
@@ -30,7 +30,13 @@ def page(context, request):
     tasks = list(context)
     urgent_tasks = [t for t in tasks if t.emergency >= 0.8]
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
-    return {'tasks': tasks, 'urgent_tasks': urgent_tasks}
+
+    last_executions = Execution.query().order_by(Execution.time.desc()).limit(5).all()
+    return {
+        'tasks': tasks,
+        'urgent_tasks': urgent_tasks,
+        'last_executions': last_executions,
+        }
 
 
 @view_config(context=Task, renderer='task.mako', permission='access')

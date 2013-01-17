@@ -30,6 +30,21 @@ class PageTest(TestCase):
 
         self.assertEqual(list(result['tasks'])[0].name, 'some task')
 
+    def test_last_executions(self):
+        from demain.views import page
+        p = Page(name='some page')
+        task = Task(name='some task', page=p, periodicity=12)
+        user = User(email='tagada@example.com')
+        task.execute(user, 5)
+        task.execute(user, 10)
+        request = testing.DummyRequest()
+
+        result = page(p, request)
+
+        last_executions = result['last_executions']
+        self.assertEqual(len(last_executions), 2)
+        self.assertEqual(last_executions[0].length, 10)
+
 
 class TaskTest(TestCase):
     def _get_task(self):

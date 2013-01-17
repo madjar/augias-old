@@ -2,7 +2,22 @@
 <%namespace name="h" file="helpers.mako"/>
 
 <h2>What shall I do now ?</h2>
-${h.display_tasks(urgent_tasks)}
 
+<div class="row-fluid">
+    <div class="span9">
+        ${h.display_tasks(urgent_tasks, 3)}
+        </div>
+    <div class="span3 well" >
+        <h3>Recent executions</h3>
+        %for execution in last_executions:
+            <p>${execution.task.name} <span class="muted">by</span> ${execution.executor}
+                <span class="muted">-</span> ${h.nice_date(execution.time)}
+                %if execution.length is not None:
+                        (${execution.length} mins)
+                %endif
+            </p>
+        %endfor
+    </div>
+</div>
 <h2>All tasks</h2>
 ${h.display_tasks(tasks)}
