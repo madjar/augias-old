@@ -1,7 +1,9 @@
+import datetime
 from operator import attrgetter
 from pyramid.exceptions import Forbidden
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
+from sqlalchemy import func
 from demain.utils import FlashMessage
 
 from .models import (
@@ -31,11 +33,25 @@ def page(context, request):
     urgent_tasks = [t for t in tasks if t.emergency >= 0.8]
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
 
+    time_spend_today = (DBSession.query(func.sum(Execution.length))
+                        .filter(func.date(Execution.time) == datetime.date.today())
+                        .scalar()) or 0
+    # TODO this could be configurable
+    time_left = 15 - time_spend_today
+    suggested_something = False
+    for t in urgent_tasks:
+        if time_left <= 0:
+            break
+        t.suggested = True
+        time_left -= t.mean_execution
+        suggested_something = True
+
     last_executions = Execution.query().order_by(Execution.time.desc()).limit(5).all()
     return {
         'tasks': tasks,
         'urgent_tasks': urgent_tasks,
         'last_executions': last_executions,
+        'suggested_something': suggested_something,
         }
 
 

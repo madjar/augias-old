@@ -3,7 +3,12 @@
     <a href="${request.resource_path(task)}" class="task-link">
         <div class="task ${task.emergency_class()}">
             <div class="pull-right">${task.periodicity} days</div>
-            <h4>${task.name}</h4>
+            <h4>
+                %if task.suggested:
+                        <i class="icon-thumbs-up"></i>
+                %endif
+            ${task.name}</h4>
+            <div class="pull-right">${int(task.mean_execution)} mins</div>
             <p>${task.last_execution and nice_date(task.last_execution)}</p>
         </div>
     </a>

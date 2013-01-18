@@ -45,6 +45,30 @@ class PageTest(TestCase):
         self.assertEqual(len(last_executions), 2)
         self.assertEqual(last_executions[0].length, 10)
 
+    def test_suggestions(self):
+        from demain.views import page
+        import datetime
+        p = Page(name='some page')
+        user = User(email='tagada@example.com')
+        long_ago = datetime.datetime.utcfromtimestamp(0)
+        t1 = Task(name='some task', page=p, periodicity=42)
+        t1.execute(user, 10, long_ago)
+        t2 = Task(name='other task', page=p, periodicity=42)
+        t2.execute(user, 10, long_ago)
+        t3 = Task(name='one more task', page=p, periodicity=42)
+        t3.execute(user, 10, long_ago)
+        Task.query().update({'last_execution': long_ago})
+        # now, the system knows that each tasks is about 10 minutes long, and
+        # that they are all late
+
+        request = testing.DummyRequest()
+        result = page(p, request)
+
+        tasks = result['tasks']
+        self.assertEqual(tasks[0].suggested, True)
+        self.assertEqual(tasks[1].suggested, True)
+        self.assertEqual(tasks[2].suggested, False)
+
 
 class TaskTest(TestCase):
     def _get_task(self):

@@ -72,6 +72,8 @@ class Task(Base):
     periodicity = Column(Integer) # days
     last_execution = Column(DateTime, default=datetime.datetime.now)
 
+    suggested = False
+
     def __repr__(self):
         return '<Task "%s">'%self.name
 
@@ -83,11 +85,12 @@ class Task(Base):
     def __name__(self):
         return self.id
 
-    def execute(self, user, length):
-        now = datetime.datetime.now()
-        execution = Execution(task=self, executor=user, time=now, length=length)
+    def execute(self, user, length, time=None):
+        if not time:
+            time = datetime.datetime.now()
+        execution = Execution(task=self, executor=user, time=time, length=length)
         DBSession.add(execution)
-        self.last_execution = now
+        self.last_execution = time
 
     @reify
     def emergency(self):

@@ -1,12 +1,10 @@
-import csv
 import datetime
 import random
 import sys
 from pyramid.paster import setup_logging, get_appsettings
 from sqlalchemy import engine_from_config
 import transaction
-from demain import DBSession, Base
-from demain.models import Task
+from demain.models import Task, DBSession, get_user
 
 def main(argv=sys.argv):
     config_uri = argv[1]
@@ -15,11 +13,13 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     with transaction.manager:
+        user = get_user('tagada@example.com')
         for t in DBSession.query(Task).all():
             if random.random() < 0.2:
                 t.last_execution = None
             else:
-                t.last_execution = datetime.datetime.now() - datetime.timedelta(days=t.periodicity * random.random() * 1.5)
+                exec_time = datetime.datetime.now() - datetime.timedelta(days=t.periodicity * random.random() * 1.5)
+                t.execute(user, 10, exec_time)
 
 if __name__ == '__main__':
     main()

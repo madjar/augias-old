@@ -2,6 +2,9 @@
 <%namespace name="h" file="helpers.mako"/>
 
 <h2>What shall I do now ?</h2>
+%if suggested_something:
+    <p><i class="icon-thumbs-up"></i> Got 15 minutes ? Why not do a few things ?</p>
+%endif
 
 <div class="row-fluid">
     <div class="span9">
