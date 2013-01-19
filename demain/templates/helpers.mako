@@ -59,3 +59,5 @@
         (${execution.length} mins)
     %endif
 </%def>
+
+<%def name="csrf_token(request)"><input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"></%def>

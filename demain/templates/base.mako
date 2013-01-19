@@ -1,3 +1,4 @@
+<%namespace name="h" file="helpers.mako"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,6 +28,9 @@
                 <a class="brand" href="${request.resource_url(request.root)}">Demain</a>
                 <ul class="nav">
                     ${menu_item(request.root, "Dashboard")}
+##                    TODO : list of pages
+##                    TODO : check when there are a lot of those
+                    <li><a href="#" data-toggle="modal" data-target="#newPageModal">Add new page</a></li>
                 </ul>
                 % if request.user:
                         <div class="navbar-text pull-right">Logged in as ${request.user}
@@ -47,16 +51,37 @@
     ${next.body()}
 </div>
 
+<form method="POST" action="${request.resource_url(request.root, 'new_page')}">
+    <div id="newPageModal" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+        <h3>Add new page</h3>
+    </div>
+    <div class="modal-body">
+        <label>Label name</label>
+        <input type="text" id="newPageInput" name="name" placeholder="Type something…">
+        ${h.csrf_token(request)}
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create page</button>
+    </div>
+</div>
+</form>
+
 <script type="text/javascript">
     $(function(){
         $("#changeName").popover({
             placement: 'bottom',
             html: true,
             title: 'Change user name',
-            content: '<form action="${request.resource_url(request.root, 'change_username')}" method="POST"><input id="changeNameInput" type="text" name="username" placeholder="${request.user}"><input type="hidden" name="csrf_token" value=${request.session.get_csrf_token()}></form>'
+            content: '<form action="${request.resource_url(request.root, 'change_username')}" method="POST"><input id="changeNameInput" type="text" name="username" placeholder="${request.user}">${h.csrf_token(request)}</form>'
         }).click(function(e){
                     $('#changeNameInput').focus();
                 });
+        $('#newPageModal').on('shown', function () {
+            $('#newPageInput').focus();
+        });
     })
 </script>
 </body>

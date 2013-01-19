@@ -84,6 +84,48 @@ class PageTest(TestCase):
         self.assertEqual(urgent[0].suggested, True)
 
 
+class NewPageTest(TestCase):
+    def test_new_page(self):
+        from demain.views import new_page
+        user = User(email='tagada@example.com')
+        request = testing.DummyRequest({'name': 'First page'},
+                                       user=user)
+
+        result = new_page(None, request)
+
+        self.assertEqual(Page.query().count(), 1)
+        p = Page.query().one()
+        self.assertEqual(p.name, 'First page')
+        self.assertEqual(p.users, [user])
+
+
+class DeletePageTest(TestCase):
+    def test_last_user_deletes_page(self):
+        from demain.views import page_delete_post
+        user = User(email='tagada@example.com')
+        page = Page(name='wizzz', users=[user])
+        DBSession.add_all([user, page])
+        self.assertEqual(Page.query().count(), 1)
+        request = testing.DummyRequest(user=user)
+
+        result = page_delete_post(page, request)
+
+        self.assertEqual(Page.query().count(), 0)
+
+    def test_non_last_user_leaves_page(self):
+        from demain.views import page_delete_post
+        user1 = User(email='tagada@example.com')
+        user2 = User(email='tsoin@example.com')
+        page = Page(name='wizzz', users=[user1, user2])
+        DBSession.add_all([user1, user2, page])
+
+        request = testing.DummyRequest(user=user1)
+
+        result = page_delete_post(page, request)
+
+        self.assertEqual(Page.query().count(), 1)
+        self.assertEqual(page.users, [user2])
+
 class TaskTest(TestCase):
     def _get_task(self):
         page = Page(name='some page')

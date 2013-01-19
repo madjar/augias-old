@@ -14,7 +14,7 @@ from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
-    relationship)
+    relationship, backref)
 from sqlalchemy.orm.exc import NoResultFound
 
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -49,6 +49,10 @@ class User(Base):
     def __html__(self):
         return self.name or self.email
 
+    def __repr__(self):
+        # TODO : factor this
+        return '<User "%s">'%self.email
+
 
 def get_user(request):
     user_email = authenticated_userid(request)
@@ -67,7 +71,7 @@ class Task(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(64))
     page_id = Column(Integer, ForeignKey('pages.id'), nullable=False)
-    page = relationship('Page', backref='tasks')
+    page = relationship('Page', backref=backref('tasks', cascade='all, delete-orphan'))
 
     periodicity = Column(Integer, nullable=False) # days
     last_execution = Column(DateTime, default=datetime.datetime.now)
@@ -132,7 +136,9 @@ class Execution(Base):
     executor_id = Column(Integer, ForeignKey('users.id'))
     task_id = Column(Integer, ForeignKey('tasks.id'), nullable=False)
     executor = relationship('User', backref='executions')  # empty means collective work
-    task = relationship('Task', backref='executions')
+    task = relationship('Task', backref=backref('executions', cascade='all, delete-orphan'))
+    # TODO : http://docs.sqlalchemy.org/en/rel_0_8/orm/collections.html#passive-deletes
+    # Once in postgres, this optimization should be enabled
     time = Column(DateTime, nullable=False)
     length = Column(Integer)  # empty means no data
 
