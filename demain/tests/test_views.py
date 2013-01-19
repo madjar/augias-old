@@ -87,7 +87,7 @@ class PageTest(TestCase):
 class TaskTest(TestCase):
     def _get_task(self):
         page = Page(name='some page')
-        task = Task(name='some task', page=page)
+        task = Task(name='some task', page=page, periodicity=42)
         DBSession.add_all([page, task])
         return task
 

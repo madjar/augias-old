@@ -65,11 +65,11 @@ def get_user(request):
 class Task(Base):
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True)
-    name = Column(Text) # Todo this should be String, I believe
+    name = Column(String(64))
     page_id = Column(Integer, ForeignKey('pages.id'), nullable=False)
     page = relationship('Page', backref='tasks')
 
-    periodicity = Column(Integer) # days
+    periodicity = Column(Integer, nullable=False) # days
     last_execution = Column(DateTime, default=datetime.datetime.now)
 
     suggested = False
@@ -130,10 +130,10 @@ class Execution(Base):
     __tablename__ = 'executions'
     id = Column(Integer, primary_key=True)
     executor_id = Column(Integer, ForeignKey('users.id'))
-    task_id = Column(Integer, ForeignKey('tasks.id'))
+    task_id = Column(Integer, ForeignKey('tasks.id'), nullable=False)
     executor = relationship('User', backref='executions')  # empty means collective work
     task = relationship('Task', backref='executions')
-    time = Column(DateTime)
+    time = Column(DateTime, nullable=False)
     length = Column(Integer)  # empty means no data
 
 
@@ -164,7 +164,6 @@ class Page(Base):
             raise KeyError(item)
         return task
 
-    # TODO : mettre des vrais __name__ et __parent__ partout
     def __iter__(self):
         for task in self.tasks:
             yield task
