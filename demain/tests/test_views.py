@@ -1,4 +1,4 @@
-import unittest
+import datetime
 from unittest.mock import create_autospec
 from pyramid import testing
 from demain.tests import TestCase
@@ -8,9 +8,9 @@ class UserTest(TestCase):
     def test_change_username(self):
         from demain.views import change_username
 
-        request = testing.DummyRequest({'username': 'new_username'})
-        request.user = User(email='tagada@example.com')
-        request.referer = '/came-from'
+        request = testing.DummyRequest({'username': 'new_username'},
+                                       user=User(email='tagada@example.com'),
+                                       referer='/came-from')
 
         result = change_username(Root(request), request)
 
@@ -24,7 +24,7 @@ class PageTest(TestCase):
         from demain.views import page
         p = Page(name='some page')
         task = Task(name='some task', page=p)
-        request = testing.DummyRequest()
+        request = testing.DummyRequest(user=None)
 
         result = page(p, request)
 
@@ -37,7 +37,7 @@ class PageTest(TestCase):
         user = User(email='tagada@example.com')
         task.execute(user, 5)
         task.execute(user, 10)
-        request = testing.DummyRequest()
+        request = testing.DummyRequest(user=user)
 
         result = page(p, request)
 
@@ -45,29 +45,43 @@ class PageTest(TestCase):
         self.assertEqual(len(last_executions), 2)
         self.assertEqual(last_executions[0].length, 10)
 
+    def _create_task_and_execute(self, page, user, length, time=None):
+        t = Task(name='some task', page=page, periodicity=42)
+        t.execute(user, length, time)
+        return t
+
     def test_suggestions(self):
         from demain.views import page
-        import datetime
         p = Page(name='some page')
         user = User(email='tagada@example.com')
         long_ago = datetime.datetime.utcfromtimestamp(0)
-        t1 = Task(name='some task', page=p, periodicity=42)
-        t1.execute(user, 10, long_ago)
-        t2 = Task(name='other task', page=p, periodicity=42)
-        t2.execute(user, 10, long_ago)
-        t3 = Task(name='one more task', page=p, periodicity=42)
-        t3.execute(user, 10, long_ago)
-        Task.query().update({'last_execution': long_ago})
-        # now, the system knows that each tasks is about 10 minutes long, and
-        # that they are all late
+        self._create_task_and_execute(p, user, 10, long_ago)
+        self._create_task_and_execute(p, user, 10, long_ago)
+        self._create_task_and_execute(p, user, 10, long_ago)
 
-        request = testing.DummyRequest()
+        request = testing.DummyRequest(user=user)
         result = page(p, request)
 
         tasks = result['tasks']
         self.assertEqual(tasks[0].suggested, True)
         self.assertEqual(tasks[1].suggested, True)
         self.assertEqual(tasks[2].suggested, False)
+
+    def test_suggest_even_when_someone_else_did_something(self):
+        from demain.views import page
+        p = Page(name='some page')
+        user1 = User(email='tagada@example.com')
+        user2 = User(email='sir_foobar@example.com')
+        long_ago = datetime.datetime.utcfromtimestamp(0)
+        self._create_task_and_execute(p, user1, 10, long_ago)
+        self._create_task_and_execute(p, user2, 60)
+
+        request = testing.DummyRequest(user=user1)
+        result = page(p, request)
+
+        urgent = result['urgent_tasks']
+        self.assertEqual(len(urgent), 1)
+        self.assertEqual(urgent[0].suggested, True)
 
 
 class TaskTest(TestCase):

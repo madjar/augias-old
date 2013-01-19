@@ -3,7 +3,7 @@ from operator import attrgetter
 from pyramid.exceptions import Forbidden
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from demain.utils import FlashMessage
 
 from .models import (
@@ -34,6 +34,8 @@ def page(context, request):
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
 
     time_spend_today = (DBSession.query(func.sum(Execution.length))
+                        .filter(or_(Execution.executor==request.user,
+                                    Execution.executor==None))
                         .filter(func.date(Execution.time) == datetime.date.today())
                         .scalar()) or 0
     # TODO this could be configurable
