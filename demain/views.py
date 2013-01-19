@@ -86,7 +86,8 @@ def page(context, request):
 def task(context, request):
     return {'task': context}
 
-@view_config(context=Task, name='execute', permission='access')
+@view_config(context=Task, name='execute', permission='access',
+             request_method='POST', check_csrf=True)
 def execute(context, request):
     try:
         if not request.params['length']:

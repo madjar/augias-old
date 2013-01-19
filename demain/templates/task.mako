@@ -20,6 +20,7 @@
                 <option value="">Collective execution</option>
             </select>
             <input type="hidden" name="task_id"/>
+            ${h.csrf_token(request)}
             <button class="btn btn-primary" type="submit">Execute</button>
         </form>
         <p>If you're not sure, leave the duration empty and it will be ignored in the statistics.</p>
