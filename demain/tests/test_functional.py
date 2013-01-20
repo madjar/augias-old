@@ -71,8 +71,10 @@ class FunctionalTests(unittest.TestCase):
 
     def _login(self):
         res = self.testapp.get('/', status=403)
-        token = re.findall(r'csrf_token:\s"([0-9a-f]*)"', res.unicode_body)[0]
-        self.testapp.post('/login', {'assertion': self.assertion, 'csrf_token': token})
+        token = re.findall(r"value='([0-9a-f]*)'", res.unicode_body)[0]
+        self.testapp.post('/login', {'assertion': self.assertion,
+                                     'csrf_token': token,
+                                     'came_from': '/'})
 
     def test_index(self):
         self._login()
@@ -94,5 +96,5 @@ class FunctionalTests(unittest.TestCase):
         form['length'] = 15
         res = form.submit(status=302)
         res = res.follow()
-        self.assertIn('for 15 minutes', res.unicode_body)
-        self.assertIn('by %s'%self.email, res.unicode_body)
+        self.assertIn('(15 mins)', res.unicode_body)
+        self.assertIn(self.email, res.unicode_body)
