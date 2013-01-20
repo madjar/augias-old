@@ -50,6 +50,17 @@ class PageTest(TestCase):
         t.execute(user, length, time)
         return t
 
+    def test_last_executions_from_other_pages_do_not_appear(self):
+        from demain.views import page
+        p1 = Page(name='some page')
+        p2 = Page(name='another page')
+        user = User(email='tagada@example.com')
+        self._create_task_and_execute(p1, None, 10)
+        request = testing.DummyRequest(user=user)
+
+        result = page(p2, request)
+        self.assertEqual(len(result['last_executions']), 0)
+
     def test_suggestions(self):
         from demain.views import page
         p = Page(name='some page')
@@ -78,6 +89,22 @@ class PageTest(TestCase):
 
         request = testing.DummyRequest(user=user1)
         result = page(p, request)
+
+        urgent = result['urgent_tasks']
+        self.assertEqual(len(urgent), 1)
+        self.assertEqual(urgent[0].suggested, True)
+
+    def test_suggest_when_execution_in_other_page(self):
+        from demain.views import page
+        p1 = Page(name='some page')
+        p2 = Page(name='other page')
+        user = User(email='tagada@example.com')
+        long_ago = datetime.datetime.utcfromtimestamp(0)
+        self._create_task_and_execute(p1, user, 10, long_ago)
+        self._create_task_and_execute(p2, user, 60)
+
+        request = testing.DummyRequest(user=user)
+        result = page(p1, request)
 
         urgent = result['urgent_tasks']
         self.assertEqual(len(urgent), 1)

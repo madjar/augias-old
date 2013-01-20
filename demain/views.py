@@ -58,6 +58,7 @@ def page(context, request):
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
 
     time_spend_today = (DBSession.query(func.sum(Execution.length))
+                        .join('task').filter(Task.page==context)
                         .filter(or_(Execution.executor==request.user,
                                     Execution.executor==None))
                         .filter(func.date(Execution.time) == datetime.date.today())
@@ -72,7 +73,9 @@ def page(context, request):
         time_left -= t.mean_execution
         suggested_something = True
 
-    last_executions = Execution.query().order_by(Execution.time.desc()).limit(5).all()
+    last_executions = (Execution.query()
+                       .join('task').filter(Task.page==context)
+                       .order_by(Execution.time.desc()).limit(5).all())
     return {
         'page': context,
         'tasks': tasks,
