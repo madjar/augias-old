@@ -1,4 +1,5 @@
 import datetime
+import markupsafe
 from pyramid.decorator import reify
 from pyramid.security import authenticated_userid, Allow, Authenticated, Deny, Everyone
 import re
@@ -47,7 +48,7 @@ class User(Base):
     name = Column(Text)
 
     def __html__(self):
-        return self.name or self.email
+        return markupsafe.escape(self.name or self.email)
 
     def __repr__(self):
         # TODO : factor this
