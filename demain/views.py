@@ -10,15 +10,18 @@ from .models import (
     DBSession,
     Task, Page, Root, User, Execution)
 
-@view_config(context=Root)
-def home(request):
-    if not request.user:
-        raise Forbidden()
+@view_config(context=Root, renderer='page_list.mako')
+def home(context, request):
     pages = request.user.pages
-    if len(pages) == 1:
-        return HTTPFound(request.resource_path(pages[0]))
+    if not pages:
+        page = Page(name="%s's page"%request.user.__html__(), users=[request.user])
+        DBSession.add(page)
+        DBSession.flush()
+        return HTTPFound(request.resource_url(page))
+    elif len(pages) == 1:
+        return HTTPFound(request.resource_url(pages[0]))
     else:
-        raise Exception('Multiple pages : not handled yet')
+        return {'pages': pages}
 
 
 @view_config(context=Root, name='change_username', check_csrf=True, request_method='POST')

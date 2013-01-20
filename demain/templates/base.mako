@@ -27,8 +27,9 @@
             <div class="container">
                 <a class="brand" href="${request.resource_url(request.root)}">Demain</a>
                 <ul class="nav">
-                    ${menu_item(request.root, "Dashboard")}
-##                    TODO : list of pages
+                    % for page in request.root.pages():
+                        ${menu_item(page, page.name)}
+                    % endfor
 ##                    TODO : check when there are a lot of those
                     <li><a href="#" data-toggle="modal" data-target="#newPageModal">Add new page</a></li>
                 </ul>

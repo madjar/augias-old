@@ -19,6 +19,48 @@ class UserTest(TestCase):
         self.assertEqual(request.user.name, 'new_username')
 
 
+class HomeTest(TestCase):
+    def _call_view(self, **kw):
+        from demain.views import home
+        request = testing.DummyRequest(**kw)
+        root = Root(request)
+        return home(root, request)
+
+    def test_create_page_if_user_has_none(self):
+        user = User(email='tagada.tsoin@example.com')
+        self.assertEqual(Page.query().count(), 0)
+
+        result = self._call_view(user=user)
+
+        self.assertEqual(Page.query().count(), 1)
+        page = Page.query().one()
+        self.assertEqual(page.users, [user])
+        self.assertEqual(result.code, 302)
+        self.assertEqual(result.location, testing.DummyRequest().resource_url(page))
+
+    def test_redirect_to_page_if_user_has_one(self):
+        user = User(email='tagada.tsoin@example.com')
+        page = Page(name='some page', users=[user])
+        DBSession.add_all([user, page])
+        DBSession.flush()
+        self.assertEqual(Page.query().count(), 1)
+
+        result = self._call_view(user=user)
+
+        self.assertEqual(Page.query().count(), 1)
+        self.assertEqual(result.code, 302)
+        self.assertEqual(result.location, testing.DummyRequest().resource_url(page))
+
+    def test_list_pages_if_user_has_many(self):
+        user = User(email='tagada.tsoin@example.com')
+        page1 = Page(name='some page', users=[user])
+        page2 = Page(name='some other page', users=[user])
+
+        result = self._call_view(user=user)
+
+        self.assertEqual(result['pages'], [page1, page2])
+
+
 class PageTest(TestCase):
     def test_page(self):
         from demain.views import page

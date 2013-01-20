@@ -192,3 +192,6 @@ class Root:
         if not page: #pragma: nocover
             raise KeyError(item)
         return page
+
+    def pages(self):
+        return self.request.user.pages
