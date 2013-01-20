@@ -1,6 +1,6 @@
 import datetime
 from pyramid.decorator import reify
-from pyramid.security import authenticated_userid, Allow, Authenticated
+from pyramid.security import authenticated_userid, Allow, Authenticated, Deny, Everyone
 import re
 from sqlalchemy import (
     Column,
@@ -176,7 +176,7 @@ class Page(Base):
 
     @reify
     def __acl__(self):
-        return [(Allow, user.email, 'access') for user in self.users]
+        return [(Allow, user.email, 'access') for user in self.users] + [(Deny, Everyone, 'access')]
 
 
 class Root:

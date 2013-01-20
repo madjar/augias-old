@@ -17,6 +17,8 @@ def main(global_config, **settings):
     config.include('demain.utils.flash')
     config.add_request_method(get_user, 'user', reify=True)
 
+    config.set_default_permission('access')
+
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.scan()
     return config.make_wsgi_app()

@@ -27,7 +27,7 @@ def change_username(context, request):
     return HTTPFound(request.referer)
 
 
-@view_config(context=Root, name='new_page', permission='access',
+@view_config(context=Root, name='new_page',
              request_method='POST', check_csrf=True)
 def new_page(context, request):
     page = Page(name=request.params['name'], users=[request.user])
@@ -35,13 +35,13 @@ def new_page(context, request):
     DBSession.flush()
     return HTTPFound(request.resource_url(page))
 
-@view_config(context=Page, name='delete', permission='access',
+@view_config(context=Page, name='delete',
              request_method='GET', renderer='page_delete.mako')
 def page_delete(context, request):
     return {'page': context}
 
 
-@view_config(context=Page, name='delete', permission='access',
+@view_config(context=Page, name='delete',
              request_method='POST', check_csrf=True)
 def page_delete_post(context, request):
     if len(context.users) == 1:
@@ -51,7 +51,7 @@ def page_delete_post(context, request):
     return HTTPFound('/')
 
 
-@view_config(context=Page, renderer='page.mako', permission='access')
+@view_config(context=Page, renderer='page.mako')
 def page(context, request):
     tasks = list(context)
     urgent_tasks = [t for t in tasks if t.emergency >= 0.8]
@@ -85,11 +85,11 @@ def page(context, request):
         }
 
 
-@view_config(context=Task, renderer='task.mako', permission='access')
+@view_config(context=Task, renderer='task.mako')
 def task(context, request):
     return {'task': context}
 
-@view_config(context=Task, name='execute', permission='access',
+@view_config(context=Task, name='execute',
              request_method='POST', check_csrf=True)
 def execute(context, request):
     try:
