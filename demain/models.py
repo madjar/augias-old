@@ -1,6 +1,6 @@
 import datetime
 from pyramid.decorator import reify
-from pyramid.security import authenticated_userid, Allow
+from pyramid.security import authenticated_userid, Allow, Authenticated
 import re
 from sqlalchemy import (
     Column,
@@ -181,6 +181,8 @@ class Page(Base):
 
 class Root:
     __root__ = __name__ = None
+    # TODO : review this when adding a welcome page
+    __acl__ = [(Allow, Authenticated, 'access')]
 
     def __init__(self, request):
         self.request = request
