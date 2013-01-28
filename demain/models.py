@@ -82,6 +82,9 @@ class Task(Base):
     def __repr__(self):
         return '<Task "%s">'%self.name
 
+    def __html__(self):
+        return markupsafe.escape(self.name)
+
     @property
     def __parent__(self):
         return self.page
@@ -155,6 +158,12 @@ class Page(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(32), nullable=False)
     users = relationship(User, secondary=page_authorizations, backref='pages')
+
+    def __repr__(self):
+        return '<Page "%s">'%self.name
+
+    def __html__(self):
+        return markupsafe.escape(self.name)
 
     @property
     def __parent__(self):

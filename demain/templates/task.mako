@@ -1,7 +1,7 @@
 <%inherit file="base.mako"/>
 <%namespace name="h" file="helpers.mako"/>
 
-<h2>${task.name}</h2>
+<h2>${task}</h2>
 
 <div class="row">
     <div class="span3">${h._display_task(task)}</div>

@@ -7,7 +7,7 @@
                 %if task.suggested:
                         <i class="icon-thumbs-up"></i>
                 %endif
-            ${task.name}</h4>
+            ${task}</h4>
             <div class="pull-right">${int(task.mean_execution)} mins</div>
             <p>${task.last_execution and nice_date(task.last_execution)}</p>
         </div>
@@ -51,7 +51,7 @@
 
 <%def name="display_execution(execution, name=True)">
     %if name:
-        ${execution.task.name} <span class="muted">by</span>
+        ${execution.task} <span class="muted">by</span>
     %endif
     ${execution.executor or "everybody"}
     <span class="muted">&ndash;</span> ${nice_date(execution.time)}
