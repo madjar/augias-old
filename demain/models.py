@@ -6,7 +6,6 @@ import re
 from sqlalchemy import (
     Column,
     Integer,
-    Text,
     ForeignKey, DateTime, String, Table)
 import sqlalchemy
 
@@ -44,8 +43,8 @@ Base = declarative_base(cls=Base)
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    email = Column(Text, unique=True, index=True)
-    name = Column(Text)
+    email = Column(String(40), unique=True, index=True)
+    name = Column(String(40))
 
     def __html__(self):
         return markupsafe.escape(self.name or self.email)
