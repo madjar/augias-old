@@ -1,3 +1,4 @@
+from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
@@ -14,6 +15,11 @@ def main(global_config, **settings):
     Base.metadata.bind = engine
     config = Configurator(settings=settings, root_factory=Root)
     config.include('pyramid_persona')
+    authn_policy = AuthTktAuthenticationPolicy(settings['persona.secret'],
+                                               hashalg='sha512',
+                                               max_age=60*60*24*30) # 1 month
+    config.set_authentication_policy(authn_policy)
+
     config.include('demain.utils.flash')
     config.add_request_method(get_user, 'user', reify=True)
 
