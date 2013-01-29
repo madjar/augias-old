@@ -153,6 +153,49 @@ class PageTest(TestCase):
         self.assertEqual(urgent[0].suggested, True)
 
 
+class InviteTest(TestCase):
+    def test_add_invite(self):
+        from demain.views import page_invite_post
+        p = Page(name='some page')
+
+        request = testing.DummyRequest({'email': 'tagada@example.com'})
+        request.flash_success = create_autospec(lambda x: None)
+        page_invite_post(p, request)
+
+        self.assertEqual(p.invites, ['tagada@example.com'])
+
+    def test_add_invite_is_idempotent(self):
+        from demain.views import page_invite_post
+        p = Page(name='some page')
+
+        request = testing.DummyRequest({'email': 'tagada@example.com'})
+        request.flash_success = create_autospec(lambda x: None)
+        page_invite_post(p, request)
+        page_invite_post(p, request)
+
+        self.assertEqual(p.invites, ['tagada@example.com'])
+
+    def test_accept_invite(self):
+        from demain.views import page_join
+        p = Page(name='some page', invites=['tagada@example.com'])
+        user = User(email='tagada@example.com')
+
+        request = testing.DummyRequest(user=user)
+        request.flash_success = create_autospec(lambda x: None)
+        page_join(p, request)
+        self.assertEqual(p.users, [user])
+        self.assertEqual(p.invites, [])
+
+    def test_cant_accept_not_invite(self):
+        from demain.views import page_join
+        p = Page(name='some page')
+        user = User(email='tagada@example.com')
+
+        request = testing.DummyRequest(user=user)
+        request.flash_error = create_autospec(lambda x: None)
+        page_join(p, request)
+        self.assertEqual(p.users, [])
+
 class NewPageTest(TestCase):
     def test_new_page(self):
         from demain.views import new_page

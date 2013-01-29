@@ -21,3 +21,4 @@
 ${h.display_tasks(tasks)}
 
 <a href="${request.resource_url(page, 'delete')}" class="btn btn-danger">${'Delete' if len(page.users) == 1 else 'Leave'}</a>
+<a href="${request.resource_url(page, 'manage')}" class="btn">Manage</a>

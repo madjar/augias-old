@@ -8,6 +8,7 @@ from sqlalchemy import (
     Integer,
     ForeignKey, DateTime, String, Table)
 import sqlalchemy
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
@@ -31,8 +32,6 @@ class Base(object):
             re.sub(r'([A-Z])', lambda m:"_" + m.group(0).lower(), name[1:]) +
             's'
             )
-
-    id = Column(Integer, primary_key=True)
 
     @classmethod
     def query(cls):
@@ -157,6 +156,8 @@ class Page(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(32), nullable=False)
     users = relationship(User, secondary=page_authorizations, backref='pages')
+    inv = relationship('Invite', backref='page', cascade='all, delete-orphan')
+    invites = association_proxy('inv', 'email')
 
     def __repr__(self):
         return '<Page "%s">'%self.name
@@ -188,10 +189,26 @@ class Page(Base):
         return [(Allow, user.email, 'access') for user in self.users] + [(Deny, Everyone, 'access')]
 
 
+class Invite(Base):
+    __tablename__ = 'invites'
+    page_id = Column(Integer, ForeignKey('pages.id'), primary_key=True)
+    email = Column(String(40), primary_key=True)
+    date = Column(DateTime, default=datetime.datetime.now)
+
+    def __init__(self, email):
+        self.email = email
+
+    def __repr__(self):
+        return '<Invite "%s" to page %s >'%(self.email, self.page.name)
+
+
 class Root:
     __root__ = __name__ = None
     # TODO : review this when adding a welcome page
-    __acl__ = [(Allow, Authenticated, 'access')]
+    __acl__ = [
+        (Allow, Authenticated, 'access'),
+        (Allow, Authenticated, 'auth'),
+        ]
 
     def __init__(self, request):
         self.request = request

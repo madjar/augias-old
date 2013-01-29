@@ -88,6 +88,33 @@ def page(context, request):
         }
 
 
+@view_config(context=Page, name='manage', renderer='page_manage.mako')
+def page_manage(context, request):
+    return {'page': context}
+
+
+@view_config(context=Page, name='invite', request_method='POST', check_csrf=True)
+def page_invite_post(context, request):
+    email = request.params['email']
+    if not email in context.invites:
+        context.invites.append(email)
+    request.flash_success('%s invited Please note that no email has been sent.'%email)
+    # TODO send email
+    return HTTPFound(request.resource_url(context, 'manage'))
+
+
+@view_config(context=Page, name='join', permission='auth')
+def page_join(context, request):
+    if request.user.email in context.invites:
+        context.invites.remove(request.user.email)
+        context.users.append(request.user)
+        request.flash_success('You have been added to %s'%context.name)
+        return HTTPFound(request.resource_url(context))
+    else:
+        request.flash_error("You aren't invited to this page")
+        return HTTPFound(request.resource_url(request.root))
+
+
 @view_config(context=Task, renderer='task.mako')
 def task(context, request):
     return {'task': context}
