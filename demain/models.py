@@ -44,6 +44,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String(40), unique=True, index=True)
     name = Column(String(40))
+    inscription_date = Column(DateTime, default=datetime.datetime.now)
 
     def __html__(self):
         return markupsafe.escape(self.name or self.email)
