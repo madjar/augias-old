@@ -4,11 +4,19 @@ from pyramid import testing
 from demain.tests import TestCase
 from demain.models import Root, User, Page, Task, DBSession, Execution
 
+
+class DummyRequest(testing.DummyRequest):
+    def __init__(self, *args, **kw):
+        super().__init__(*args, **kw)
+        self.flash_success = create_autospec(lambda x: None)
+        self.flash_error = create_autospec(lambda x: None)
+
+
 class UserTest(TestCase):
     def test_change_username(self):
         from demain.views import change_username
 
-        request = testing.DummyRequest({'username': 'new_username'},
+        request = DummyRequest({'username': 'new_username'},
                                        user=User(email='tagada@example.com'),
                                        referer='/came-from')
 
@@ -22,7 +30,7 @@ class UserTest(TestCase):
 class HomeTest(TestCase):
     def _call_view(self, **kw):
         from demain.views import home
-        request = testing.DummyRequest(**kw)
+        request = DummyRequest(**kw)
         root = Root(request)
         return home(root, request)
 
@@ -36,7 +44,7 @@ class HomeTest(TestCase):
         page = Page.query().one()
         self.assertEqual(page.users, [user])
         self.assertEqual(result.code, 302)
-        self.assertEqual(result.location, testing.DummyRequest().resource_url(page))
+        self.assertEqual(result.location, DummyRequest().resource_url(page))
 
     def test_redirect_to_page_if_user_has_one(self):
         user = User(email='tagada.tsoin@example.com')
@@ -49,7 +57,7 @@ class HomeTest(TestCase):
 
         self.assertEqual(Page.query().count(), 1)
         self.assertEqual(result.code, 302)
-        self.assertEqual(result.location, testing.DummyRequest().resource_url(page))
+        self.assertEqual(result.location, DummyRequest().resource_url(page))
 
     def test_list_pages_if_user_has_many(self):
         user = User(email='tagada.tsoin@example.com')
@@ -66,7 +74,7 @@ class PageTest(TestCase):
         from demain.views import page
         p = Page(name='some page')
         task = Task(name='some task', page=p)
-        request = testing.DummyRequest(user=None)
+        request = DummyRequest(user=None)
 
         result = page(p, request)
 
@@ -79,7 +87,7 @@ class PageTest(TestCase):
         user = User(email='tagada@example.com')
         task.execute(user, 5)
         task.execute(user, 10)
-        request = testing.DummyRequest(user=user)
+        request = DummyRequest(user=user)
 
         result = page(p, request)
 
@@ -98,7 +106,7 @@ class PageTest(TestCase):
         p2 = Page(name='another page')
         user = User(email='tagada@example.com')
         self._create_task_and_execute(p1, None, 10)
-        request = testing.DummyRequest(user=user)
+        request = DummyRequest(user=user)
 
         result = page(p2, request)
         self.assertEqual(len(result['last_executions']), 0)
@@ -112,7 +120,7 @@ class PageTest(TestCase):
         self._create_task_and_execute(p, user, 10, long_ago)
         self._create_task_and_execute(p, user, 10, long_ago)
 
-        request = testing.DummyRequest(user=user)
+        request = DummyRequest(user=user)
         result = page(p, request)
 
         tasks = result['tasks']
@@ -129,7 +137,7 @@ class PageTest(TestCase):
         self._create_task_and_execute(p, user1, 10, long_ago)
         self._create_task_and_execute(p, user2, 60)
 
-        request = testing.DummyRequest(user=user1)
+        request = DummyRequest(user=user1)
         result = page(p, request)
 
         urgent = result['urgent_tasks']
@@ -145,7 +153,7 @@ class PageTest(TestCase):
         self._create_task_and_execute(p1, user, 10, long_ago)
         self._create_task_and_execute(p2, user, 60)
 
-        request = testing.DummyRequest(user=user)
+        request = DummyRequest(user=user)
         result = page(p1, request)
 
         urgent = result['urgent_tasks']
@@ -158,8 +166,7 @@ class InviteTest(TestCase):
         from demain.views import page_invite_post
         p = Page(name='some page')
 
-        request = testing.DummyRequest({'email': 'tagada@example.com'})
-        request.flash_success = create_autospec(lambda x: None)
+        request = DummyRequest({'email': 'tagada@example.com'})
         page_invite_post(p, request)
 
         self.assertEqual(p.invites, ['tagada@example.com'])
@@ -168,8 +175,7 @@ class InviteTest(TestCase):
         from demain.views import page_invite_post
         p = Page(name='some page')
 
-        request = testing.DummyRequest({'email': 'tagada@example.com'})
-        request.flash_success = create_autospec(lambda x: None)
+        request = DummyRequest({'email': 'tagada@example.com'})
         page_invite_post(p, request)
         page_invite_post(p, request)
 
@@ -180,8 +186,7 @@ class InviteTest(TestCase):
         p = Page(name='some page', invites=['tagada@example.com'])
         user = User(email='tagada@example.com')
 
-        request = testing.DummyRequest(user=user)
-        request.flash_success = create_autospec(lambda x: None)
+        request = DummyRequest(user=user)
         page_join(p, request)
         self.assertEqual(p.users, [user])
         self.assertEqual(p.invites, [])
@@ -191,16 +196,16 @@ class InviteTest(TestCase):
         p = Page(name='some page')
         user = User(email='tagada@example.com')
 
-        request = testing.DummyRequest(user=user)
-        request.flash_error = create_autospec(lambda x: None)
+        request = DummyRequest(user=user)
         page_join(p, request)
+
         self.assertEqual(p.users, [])
 
 class NewPageTest(TestCase):
     def test_new_page(self):
         from demain.views import new_page
         user = User(email='tagada@example.com')
-        request = testing.DummyRequest({'name': 'First page'},
+        request = DummyRequest({'name': 'First page'},
                                        user=user)
 
         result = new_page(None, request)
@@ -218,7 +223,7 @@ class DeletePageTest(TestCase):
         page = Page(name='wizzz', users=[user])
         DBSession.add_all([user, page])
         self.assertEqual(Page.query().count(), 1)
-        request = testing.DummyRequest(user=user)
+        request = DummyRequest(user=user)
 
         result = page_delete_post(page, request)
 
@@ -231,7 +236,7 @@ class DeletePageTest(TestCase):
         page = Page(name='wizzz', users=[user1, user2])
         DBSession.add_all([user1, user2, page])
 
-        request = testing.DummyRequest(user=user1)
+        request = DummyRequest(user=user1)
 
         result = page_delete_post(page, request)
 
@@ -249,7 +254,7 @@ class TaskTest(TestCase):
         from demain.views import task
         t = self._get_task()
 
-        result = task(t, testing.DummyRequest())
+        result = task(t, DummyRequest())
 
         self.assertEqual(result['task'], t)
 
@@ -258,8 +263,7 @@ class TaskTest(TestCase):
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
-        request = testing.DummyRequest({'length': '15', 'executor': user.email})
-        request.flash_success = create_autospec(lambda x: None)
+        request = DummyRequest({'length': '15', 'executor': user.email})
 
         result = execute(task, request)
 
@@ -272,8 +276,7 @@ class TaskTest(TestCase):
     def test_execute_collective(self):
         from demain.views import execute
         task = self._get_task()
-        request = testing.DummyRequest({'length': '15', 'executor': ''})
-        request.flash_success = create_autospec(lambda x: None)
+        request = DummyRequest({'length': '15', 'executor': ''})
 
         result = execute(task, request)
 
@@ -288,8 +291,7 @@ class TaskTest(TestCase):
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
-        request = testing.DummyRequest({'length': '', 'executor': user.email})
-        request.flash_success = create_autospec(lambda x: None)
+        request = DummyRequest({'length': '', 'executor': user.email})
 
         result = execute(task, request)
 
@@ -304,8 +306,7 @@ class TaskTest(TestCase):
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
-        request = testing.DummyRequest({'length': 'this is no integer', 'executor': user.email})
-        request.flash_error = create_autospec(lambda x: None)
+        request = DummyRequest({'length': 'this is no integer', 'executor': user.email})
 
         result = execute(task, request)
 
@@ -317,7 +318,7 @@ class TaskTest(TestCase):
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
-        request = testing.DummyRequest({'length': '1:30:41', 'executor': user.email})
+        request = DummyRequest({'length': '1:30:41', 'executor': user.email})
         request.flash_success = create_autospec(lambda x: None)
 
         result = execute(task, request)
