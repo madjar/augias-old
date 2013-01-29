@@ -10,6 +10,9 @@ from .models import (
     DBSession,
     Task, Page, Root, User, Execution)
 
+def redirect(request, *args):
+    return HTTPFound(request.resource_url(*args))
+
 @view_config(context=Root, renderer='page_list.mako')
 def home(context, request):
     pages = request.user.pages
@@ -17,9 +20,9 @@ def home(context, request):
         page = Page(name="%s's page"%request.user.__html__(), users=[request.user])
         DBSession.add(page)
         DBSession.flush()
-        return HTTPFound(request.resource_url(page))
+        return redirect(request, page)
     elif len(pages) == 1:
-        return HTTPFound(request.resource_url(pages[0]))
+        return redirect(request, pages[0])
     else:
         return {'pages': pages}
 
@@ -36,7 +39,7 @@ def new_page(context, request):
     page = Page(name=request.params['name'], users=[request.user])
     DBSession.add(page)
     DBSession.flush()
-    return HTTPFound(request.resource_url(page))
+    return redirect(request, page)
 
 @view_config(context=Page, name='delete',
              request_method='GET', renderer='page_delete.mako')
@@ -100,7 +103,7 @@ def page_invite_post(context, request):
         context.invites.append(email)
     request.flash_success('%s invited Please note that no email has been sent.'%email)
     # TODO send email
-    return HTTPFound(request.resource_url(context, 'manage'))
+    return redirect(request,context, 'manage')
 
 
 @view_config(context=Page, name='join', permission='auth')
@@ -109,10 +112,10 @@ def page_join(context, request):
         context.invites.remove(request.user.email)
         context.users.append(request.user)
         request.flash_success('You have been added to %s'%context.name)
-        return HTTPFound(request.resource_url(context))
+        return redirect(request, context)
     else:
         request.flash_error("You aren't invited to this page")
-        return HTTPFound(request.resource_url(request.root))
+        return redirect(request, request.root)
 
 
 @view_config(context=Task, renderer='task.mako')
@@ -143,4 +146,4 @@ def execute(context, request):
         executor = DBSession.query(User).filter_by(email=executor_email).one() if executor_email else None
         context.execute(executor, length)
         request.flash_success('Task executed')
-    return HTTPFound(request.resource_url(context))
+    return redirect(request, context)
