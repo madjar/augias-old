@@ -3,12 +3,13 @@ from operator import attrgetter
 from pyramid.exceptions import Forbidden
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
+from pyramid.security import NO_PERMISSION_REQUIRED
 from sqlalchemy import func, or_
 from demain.utils import FlashMessage
 
 from .models import (
     DBSession,
-    Task, Page, Root, User, Execution)
+    Task, Page, Root, User, Execution, UserNotFound)
 
 def redirect(request, *args):
     return HTTPFound(request.resource_url(*args))
@@ -26,6 +27,10 @@ def home(context, request):
     else:
         return {'pages': pages}
 
+
+@view_config(context=UserNotFound, renderer='not_invited.mako', permission=NO_PERMISSION_REQUIRED)
+def user_not_invited(context, request):
+    return {'email': context.args[0]}
 
 @view_config(context=Root, name='change_username', check_csrf=True, request_method='POST')
 def change_username(context, request):

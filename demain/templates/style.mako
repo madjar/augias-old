@@ -1,0 +1,23 @@
+<%namespace name="h" file="helpers.mako"/>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Demain</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="${request.static_url('demain:static/custom.css')}" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="brand" href="${request.resource_url(request.root)}">Demain</a>
+                <%block name="navbar"></%block>
+            </div>
+        </div>
+    </div>
+    ${next.body()}
+</div>
+</body>
+</html>

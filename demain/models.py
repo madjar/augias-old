@@ -54,6 +54,9 @@ class User(Base):
         return '<User "%s">'%self.email
 
 
+class UserNotFound(Exception):
+    """TODO : delete me when the site is opened"""
+
 def get_user(request):
     user_email = authenticated_userid(request)
     if not user_email:
@@ -61,8 +64,9 @@ def get_user(request):
     try:
         user = DBSession.query(User).filter_by(email=user_email).one()
     except sqlalchemy.orm.exc.NoResultFound:
-        user = User(email=user_email)
-        DBSession.add(user)
+        raise UserNotFound(user_email)
+#        user = User(email=user_email)
+#        DBSession.add(user)
     return user
 
 
