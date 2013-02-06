@@ -1,5 +1,4 @@
 <%inherit file="base.mako"/>
-<%namespace name="h" file="helpers.mako"/>
 
 <% delete = len(page.users) == 1 %>
 

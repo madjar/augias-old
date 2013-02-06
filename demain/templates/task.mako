@@ -1,10 +1,10 @@
 <%inherit file="base.mako"/>
-<%namespace name="h" file="helpers.mako"/>
+<%namespace name="mh" file="helpers.mako"/>
 
 <h2>${task}</h2>
 
 <div class="row">
-    <div class="span3">${h._display_task(task)}</div>
+    <div class="span3">${mh._display_task(task)}</div>
     <div class="span9">
 ##        TODO : aligner ça correctment
         <form id='execution' class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}" style="padding: 10px 0;">
@@ -31,7 +31,7 @@
 
 <ul>
         %for execution in task.executions:
-            <li>${h.display_execution(execution, name=False)}</li>
+            <li>${mh.display_execution(execution, name=False)}</li>
         %endfor
 </ul>
 

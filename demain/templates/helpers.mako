@@ -9,7 +9,7 @@
                 %endif
             ${task}</h4>
             <div class="pull-right">${int(task.mean_execution)} mins</div>
-            <p>${task.last_execution and nice_date(task.last_execution)}</p>
+            <p>${task.last_execution and h.nice_date(task.last_execution)}</p>
         </div>
     </a>
 </%def>
@@ -29,35 +29,14 @@
     % endwhile
 </%def>
 
-<%!
-    import datetime
-    today = datetime.date.today()
-
-    def nice_date(time):
-        date = time.date()
-        if date == today:
-            return 'Today'
-        if date - datetime.timedelta(days=1) == today:
-            return 'Yesterday'
-        result = date.strftime('%A %d %B')
-        if date.year != today.year:
-            result += date.strftime(' %Y')
-        return result
-%>
-
-<%def name="nice_date(date)">
-    ${nice_date(date)}
-</%def>
 
 <%def name="display_execution(execution, name=True)">
     %if name:
         ${execution.task} <span class="muted">by</span>
     %endif
     ${execution.executor or "everybody"}
-    <span class="muted">&ndash;</span> ${nice_date(execution.time)}
+    <span class="muted">&ndash;</span> ${h.nice_date(execution.time)}
     %if execution.length is not None:
         (${execution.length} mins)
     %endif
 </%def>
-
-<%def name="csrf_token(request)"><input type="hidden" name="csrf_token" value="${request.session.get_csrf_token()}"></%def>

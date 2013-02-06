@@ -1,5 +1,4 @@
 <%inherit file="base.mako"/>
-<%namespace name="h" file="helpers.mako"/>
 
 <h2>Manage ${page}</h2>
 <h3>People with access</h3>

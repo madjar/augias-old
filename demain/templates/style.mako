@@ -1,4 +1,3 @@
-<%namespace name="h" file="helpers.mako"/>
 <!DOCTYPE html>
 <html lang="en">
 <head>

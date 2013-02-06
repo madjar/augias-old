@@ -1,11 +1,18 @@
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.config import Configurator
+from pyramid.events import subscriber, BeforeRender
 from sqlalchemy import engine_from_config
 
 from .models import (
     DBSession,
     Base,
     get_user, Root)
+
+import demain.helpers
+
+@subscriber(BeforeRender)
+def add_global(event):
+    event['h'] = demain.helpers
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.

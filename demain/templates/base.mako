@@ -1,5 +1,4 @@
 <%inherit file="style.mako"/>
-<%namespace name="h" file="helpers.mako"/>
 
 <%def name="menu_item(obj, name)">
     <li
