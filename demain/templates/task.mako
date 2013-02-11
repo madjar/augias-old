@@ -29,6 +29,8 @@
 
 <p>Means execution time : ${'{:.1f}'.format(task.mean_execution)} minutes.</p>
 
+<div id="chart_div"></div>
+
 <ul>
         %for execution in task.executions:
             <li>${mh.display_execution(execution, name=False)}</li>
@@ -73,4 +75,20 @@
         }
     }
 
+</script>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load('visualization', '1.0', {'packages':['corechart']});
+    google.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable(${data});
+        var options = {'title':'Executions',
+            'width':400,
+            'height':300};
+
+        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+    }
 </script>

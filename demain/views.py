@@ -1,11 +1,10 @@
 import datetime
 from operator import attrgetter
-from pyramid.exceptions import Forbidden
 from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.security import NO_PERMISSION_REQUIRED
 from sqlalchemy import func, or_
-from demain.utils import FlashMessage
+from demain.utils import encode_google_datatable, raw_executions_graph
 
 from .models import (
     DBSession,
@@ -125,7 +124,7 @@ def page_join(context, request):
 
 @view_config(context=Task, renderer='task.mako')
 def task(context, request):
-    return {'task': context}
+    return {'task': context, 'data': raw_executions_graph(context)}
 
 @view_config(context=Task, name='execute',
              request_method='POST', check_csrf=True)
