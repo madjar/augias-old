@@ -65,3 +65,26 @@ def raw_executions_graph(task):
         rows.append([ex.time] + series)
 
     return encode_google_datatable(columns, rows)
+
+
+def mean_execution_time_graph(task):
+    N = 10
+    rows = []
+    executions = [t for t in task.executions if t.length]
+    executions.sort(key=lambda e: e.time)
+    # TODO : replace this with a query
+    total = 0
+    for i, e in enumerate(executions):
+        total += e.length
+        if i >= N:
+            total -= executions[i-N].length
+            rows.append((e.time, total / N))
+
+    columns = (('Date', 'date'), ('Length', 'number'))
+
+    return encode_google_datatable(columns, rows)
+
+
+def time_spent_for_task_graph(task):
+    pass
+

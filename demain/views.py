@@ -124,7 +124,7 @@ def page_join(context, request):
 
 @view_config(context=Task, renderer='task.mako')
 def task(context, request):
-    return {'task': context, 'data': raw_executions_graph(context)}
+    return {'task': context, 'data': time_spend_for_task(context)}
 
 @view_config(context=Task, name='execute',
              request_method='POST', check_csrf=True)
