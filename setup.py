@@ -41,6 +41,7 @@ setup(name='demain',
       main = demain:main
       [console_scripts]
       initialize_demain_db = demain.scripts.initializedb:main
+      augias_add_user = demain.scripts.add_user:main
       """,
       )
 
