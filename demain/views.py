@@ -151,3 +151,12 @@ def execute(context, request):
         context.execute(executor, length)
         request.flash_success('Task executed')
     return redirect(request, context)
+
+@view_config(context=Page, name='new_task',
+             request_method='POST', check_csrf=True)
+def new_task(context, request):
+    task = Task(page=context,
+                name=request.params['name'],
+                periodicity=int(request.params['periodicity']))
+    DBSession.add(task)
+    return redirect(request, context)

@@ -78,7 +78,7 @@ class Task(Base):
     page = relationship('Page', backref=backref('tasks', cascade='all, delete-orphan'))
 
     periodicity = Column(Integer, nullable=False) # days
-    last_execution = Column(DateTime, default=datetime.datetime.now)
+    last_execution = Column(DateTime)
 
     suggested = False
 

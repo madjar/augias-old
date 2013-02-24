@@ -326,3 +326,23 @@ class TaskTest(TestCase):
         self.assertEqual(result.code, 302)
         execution = DBSession.query(Execution).one()
         self.assertEqual(execution.length, 91)
+
+
+class NewTaskTest(TestCase):
+    def test_new_task(self):
+        from demain.views import new_task
+        user = User(email='tagada@example.com')
+        page = Page(users=[user], name='some page')
+        DBSession.add_all([user, page])
+        request = DummyRequest(dict(name='Task name',
+                                    periodicity=12))
+
+        result = new_task(page, request)
+
+        self.assertEqual(result.code, 302)
+        task = DBSession.query(Task).one()
+        self.assertEqual(task.name, 'Task name')
+        self.assertEqual(task.periodicity, 12)
+        self.assertEqual(task.page, page)
+        self.assertEqual(len(task.executions), 0)
+        self.assertEqual(task.last_execution, None)
