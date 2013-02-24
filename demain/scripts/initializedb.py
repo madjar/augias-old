@@ -1,20 +1,14 @@
-import csv
 import os
 import sys
-import transaction
 
 from sqlalchemy import engine_from_config
+from pyramid.paster import get_appsettings, setup_logging
+from alembic.config import Config
+from alembic import command
 
-from pyramid.paster import (
-    get_appsettings,
-    setup_logging,
-    )
+from ..models import DBSession, Base
 
-from ..models import (
-    DBSession,
-    Task,
-    Base,
-    )
+
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -31,3 +25,6 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
+
+    alembic_cfg = Config(config_uri)
+    command.stamp(alembic_cfg, "head")
