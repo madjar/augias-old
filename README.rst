@@ -1,4 +1,4 @@
-demain README
+augias README
 ==================
 
 Getting Started
@@ -8,7 +8,7 @@ Getting Started
 
 - $venv/bin/python setup.py develop
 
-- $venv/bin/initialize_demain_db development.ini
+- $venv/bin/initialize_augias_db development.ini
 
 - $venv/bin/pserve development.ini
 

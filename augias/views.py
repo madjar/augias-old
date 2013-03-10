@@ -4,7 +4,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
 from pyramid.security import NO_PERMISSION_REQUIRED
 from sqlalchemy import func, or_
-from demain.utils import encode_google_datatable, raw_executions_graph
+from .utils import encode_google_datatable, raw_executions_graph
 
 from .models import (
     DBSession,

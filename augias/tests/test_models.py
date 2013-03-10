@@ -1,5 +1,5 @@
-from demain.models import Notebook, Task, DBSession, Execution
-from demain.tests import TestCase
+from augias.models import Notebook, Task, DBSession, Execution
+from augias.tests import TestCase
 
 # TODO : fill this
 

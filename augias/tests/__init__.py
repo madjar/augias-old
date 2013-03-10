@@ -1,6 +1,6 @@
 import unittest
 from pyramid import testing
-from demain.models import DBSession, Base
+from augias.models import DBSession, Base
 
 
 class TestCase(unittest.TestCase):

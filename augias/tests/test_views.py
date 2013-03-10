@@ -1,8 +1,8 @@
 import datetime
 from unittest.mock import create_autospec
 from pyramid import testing
-from demain.tests import TestCase
-from demain.models import Root, User, Notebook, Task, DBSession, Execution
+from augias.tests import TestCase
+from augias.models import Root, User, Notebook, Task, DBSession, Execution
 
 
 class DummyRequest(testing.DummyRequest):
@@ -14,7 +14,7 @@ class DummyRequest(testing.DummyRequest):
 
 class UserTest(TestCase):
     def test_change_username(self):
-        from demain.views import change_username
+        from augias.views import change_username
 
         request = DummyRequest({'username': 'new_username'},
                                        user=User(email='tagada@example.com'),
@@ -29,7 +29,7 @@ class UserTest(TestCase):
 
 class HomeTest(TestCase):
     def _call_view(self, **kw):
-        from demain.views import home
+        from augias.views import home
         request = DummyRequest(**kw)
         root = Root(request)
         return home(root, request)
@@ -71,7 +71,7 @@ class HomeTest(TestCase):
 
 class NotebookTest(TestCase):
     def test_notebook(self):
-        from demain.views import notebook
+        from augias.views import notebook
         n = Notebook(name='some notebook')
         task = Task(name='some task', notebook=n)
         request = DummyRequest(user=None)
@@ -81,7 +81,7 @@ class NotebookTest(TestCase):
         self.assertEqual(list(result['tasks'])[0].name, 'some task')
 
     def test_last_executions(self):
-        from demain.views import notebook
+        from augias.views import notebook
         n = Notebook(name='some notebook')
         task = Task(name='some task', notebook=n, periodicity=12)
         user = User(email='tagada@example.com')
@@ -101,7 +101,7 @@ class NotebookTest(TestCase):
         return t
 
     def test_last_executions_from_other_notebooks_do_not_appear(self):
-        from demain.views import notebook
+        from augias.views import notebook
         p1 = Notebook(name='some notebook')
         p2 = Notebook(name='another notebook')
         user = User(email='tagada@example.com')
@@ -112,7 +112,7 @@ class NotebookTest(TestCase):
         self.assertEqual(len(result['last_executions']), 0)
 
     def test_suggestions(self):
-        from demain.views import notebook
+        from augias.views import notebook
         n = Notebook(name='some notebook')
         user = User(email='tagada@example.com')
         long_ago = datetime.datetime.utcfromtimestamp(0)
@@ -129,7 +129,7 @@ class NotebookTest(TestCase):
         self.assertEqual(tasks[2].suggested, False)
 
     def test_suggest_even_when_someone_else_did_something(self):
-        from demain.views import notebook
+        from augias.views import notebook
         n = Notebook(name='some notebook')
         user1 = User(email='tagada@example.com')
         user2 = User(email='sir_foobar@example.com')
@@ -145,7 +145,7 @@ class NotebookTest(TestCase):
         self.assertEqual(urgent[0].suggested, True)
 
     def test_suggest_when_execution_in_other_notebook(self):
-        from demain.views import notebook
+        from augias.views import notebook
         p1 = Notebook(name='some notebook')
         p2 = Notebook(name='other notebook')
         user = User(email='tagada@example.com')
@@ -163,7 +163,7 @@ class NotebookTest(TestCase):
 
 class InviteTest(TestCase):
     def test_add_invite(self):
-        from demain.views import notebook_invite_post
+        from augias.views import notebook_invite_post
         n = Notebook(name='some notebook')
 
         request = DummyRequest({'email': 'tagada@example.com'})
@@ -172,7 +172,7 @@ class InviteTest(TestCase):
         self.assertEqual(n.invites, ['tagada@example.com'])
 
     def test_add_invite_is_idempotent(self):
-        from demain.views import notebook_invite_post
+        from augias.views import notebook_invite_post
         n = Notebook(name='some notebook')
 
         request = DummyRequest({'email': 'tagada@example.com'})
@@ -182,7 +182,7 @@ class InviteTest(TestCase):
         self.assertEqual(n.invites, ['tagada@example.com'])
 
     def test_accept_invite(self):
-        from demain.views import notebook_join
+        from augias.views import notebook_join
         n = Notebook(name='some notebook', invites=['tagada@example.com'])
         user = User(email='tagada@example.com')
 
@@ -192,7 +192,7 @@ class InviteTest(TestCase):
         self.assertEqual(n.invites, [])
 
     def test_cant_accept_not_invite(self):
-        from demain.views import notebook_join
+        from augias.views import notebook_join
         n = Notebook(name='some notebook')
         user = User(email='tagada@example.com')
 
@@ -203,7 +203,7 @@ class InviteTest(TestCase):
 
 class NewNotebookTest(TestCase):
     def test_new_notebook(self):
-        from demain.views import new_notebook
+        from augias.views import new_notebook
         user = User(email='tagada@example.com')
         request = DummyRequest({'name': 'First notebook'},
                                        user=user)
@@ -218,7 +218,7 @@ class NewNotebookTest(TestCase):
 
 class DeleteNotebookTest(TestCase):
     def test_last_user_deletes_notebook(self):
-        from demain.views import notebook_delete_post
+        from augias.views import notebook_delete_post
         user = User(email='tagada@example.com')
         notebook = Notebook(name='wizzz', users=[user])
         DBSession.add_all([user, notebook])
@@ -230,7 +230,7 @@ class DeleteNotebookTest(TestCase):
         self.assertEqual(Notebook.query().count(), 0)
 
     def test_non_last_user_leaves_notebook(self):
-        from demain.views import notebook_delete_post
+        from augias.views import notebook_delete_post
         user1 = User(email='tagada@example.com')
         user2 = User(email='tsoin@example.com')
         notebook = Notebook(name='wizzz', users=[user1, user2])
@@ -251,7 +251,7 @@ class TaskTest(TestCase):
         return task
 
     def test_task(self):
-        from demain.views import task
+        from augias.views import task
         t = self._get_task()
 
         result = task(t, DummyRequest())
@@ -259,7 +259,7 @@ class TaskTest(TestCase):
         self.assertEqual(result['task'], t)
 
     def test_execute(self):
-        from demain.views import execute
+        from augias.views import execute
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
@@ -274,7 +274,7 @@ class TaskTest(TestCase):
         request.flash_success.assert_called_once_with('Task executed')
 
     def test_execute_collective(self):
-        from demain.views import execute
+        from augias.views import execute
         task = self._get_task()
         request = DummyRequest({'length': '15', 'executor': ''})
 
@@ -287,7 +287,7 @@ class TaskTest(TestCase):
         request.flash_success.assert_called_once_with('Task executed')
 
     def test_execute_without_duration(self):
-        from demain.views import execute
+        from augias.views import execute
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
@@ -302,7 +302,7 @@ class TaskTest(TestCase):
         request.flash_success.assert_called_once_with('Task executed')
 
     def test_execute_invalid_duration(self):
-        from demain.views import execute
+        from augias.views import execute
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
@@ -314,7 +314,7 @@ class TaskTest(TestCase):
         request.flash_error.assert_called_once_with('Invalid length "this is no integer"')
 
     def test_execute_with_colon_duration(self):
-        from demain.views import execute
+        from augias.views import execute
         task = self._get_task()
         user = User(email='tagada@example.com')
         DBSession.add(user)
@@ -330,7 +330,7 @@ class TaskTest(TestCase):
 
 class NewTaskTest(TestCase):
     def test_new_task(self):
-        from demain.views import new_task
+        from augias.views import new_task
         user = User(email='tagada@example.com')
         notebook = Notebook(users=[user], name='some notebook')
         DBSession.add_all([user, notebook])

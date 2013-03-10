@@ -1,7 +1,7 @@
 __pycache__
 *.pyc
-demain.sqlite
-demain.egg-info/
+augias.sqlite
+augias.egg-info/
 .idea/
 .coverage
 cover/

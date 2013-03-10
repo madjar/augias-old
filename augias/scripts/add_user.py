@@ -1,5 +1,5 @@
 import sys
-from demain.models import User, DBSession
+from augias.models import User, DBSession
 from pyramid.paster import bootstrap, setup_logging
 import transaction
 

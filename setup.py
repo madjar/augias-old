@@ -17,9 +17,9 @@ requires = [
     'pyramid_persona'
     ]
 
-setup(name='demain',
+setup(name='augias',
       version='0.0',
-      description='demain',
+      description='augias',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -34,14 +34,14 @@ setup(name='demain',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      test_suite='demain',
+      test_suite='augias',
       install_requires=requires,
       entry_points="""\
       [paste.app_factory]
-      main = demain:main
+      main = augias:main
       [console_scripts]
-      initialize_demain_db = demain.scripts.initializedb:main
-      augias_add_user = demain.scripts.add_user:main
+      augias_initialize_db = augias.scripts.initializedb:main
+      augias_add_user = augias.scripts.add_user:main
       """,
       )
 

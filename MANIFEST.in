@@ -1,3 +1,3 @@
 include *.txt *.ini *.cfg *.rst
-recursive-include demain *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
-recursive-include demain/alembic *.py
+recursive-include augias *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
+recursive-include augias/alembic *.py

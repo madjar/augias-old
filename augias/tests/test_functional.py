@@ -2,7 +2,7 @@ import unittest
 import re
 import transaction
 import warnings
-from demain.models import DBSession
+from augias.models import DBSession
 
 
 # Cached because this may take some time
@@ -37,7 +37,7 @@ def get_email_and_assertion(audience):
 
 
 def create_and_populate(engine=None, email=None):
-    from demain.models import Base, Task, Notebook, User
+    from augias.models import Base, Task, Notebook, User
     Base.metadata.create_all(engine)
     with transaction.manager:
         notebook = Notebook(name='some notebook')
@@ -50,13 +50,13 @@ def create_and_populate(engine=None, email=None):
 
 class FunctionalTests(unittest.TestCase):
     def setUp(self):
-        from demain import main
+        from augias import main
         config = {
             'sqlalchemy.url': 'sqlite://',
             'persona.audiences': 'http://example.com',
             'persona.secret': 'Testing secret',
             'persona.verifier': 'browserid.LocalVerifier',
-            'mako.directories': 'demain:templates',
+            'mako.directories': 'augias:templates',
             }
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

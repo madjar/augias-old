@@ -3,8 +3,8 @@ import sys
 from pyramid.paster import setup_logging, get_appsettings
 from sqlalchemy import engine_from_config
 import transaction
-from demain import DBSession, Base
-from demain.models import Task, Notebook
+from augias import DBSession, Base
+from augias.models import Task, Notebook
 
 def main(argv=sys.argv):
     config_uri = argv[1]

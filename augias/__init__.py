@@ -8,11 +8,11 @@ from .models import (
     Base,
     get_user, Root)
 
-import demain.helpers
+from . import helpers
 
 @subscriber(BeforeRender)
 def add_global(event):
-    event['h'] = demain.helpers
+    event['h'] = helpers
 
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
@@ -27,7 +27,7 @@ def main(global_config, **settings):
                                                max_age=60*60*24*30) # 1 month
     config.set_authentication_policy(authn_policy)
 
-    config.include('demain.utils.flash')
+    config.include('augias.utils.flash')
     config.add_request_method(get_user, 'user', reify=True)
 
     config.set_default_permission('access')
