@@ -37,14 +37,14 @@ def get_email_and_assertion(audience):
 
 
 def create_and_populate(engine=None, email=None):
-    from demain.models import Base, Task, Page, User
+    from demain.models import Base, Task, Notebook, User
     Base.metadata.create_all(engine)
     with transaction.manager:
-        page = Page(name='some page')
-        task = Task(name='some task', periodicity=7, page=page)
-        DBSession.add_all([page, task])
+        notebook = Notebook(name='some notebook')
+        task = Task(name='some task', periodicity=7, notebook=notebook)
+        DBSession.add_all([notebook, task])
         if email:
-            user = User(email=email, pages=[page])
+            user = User(email=email, notebooks=[notebook])
             DBSession.add(user)
 
 

@@ -8,23 +8,23 @@ from demain.utils import encode_google_datatable, raw_executions_graph
 
 from .models import (
     DBSession,
-    Task, Page, Root, User, Execution, UserNotFound)
+    Task, Notebook, Root, User, Execution, UserNotFound)
 
 def redirect(request, *args):
     return HTTPFound(request.resource_url(*args))
 
-@view_config(context=Root, renderer='page_list.mako')
+@view_config(context=Root, renderer='notebook_list.mako')
 def home(context, request):
-    pages = request.user.pages
-    if not pages:
-        page = Page(name="%s's page"%request.user.__html__(), users=[request.user])
-        DBSession.add(page)
+    notebooks = request.user.notebooks
+    if not notebooks:
+        notebook = Notebook(name="%s's notebook"%request.user.__html__(), users=[request.user])
+        DBSession.add(notebook)
         DBSession.flush()
-        return redirect(request, page)
-    elif len(pages) == 1:
-        return redirect(request, pages[0])
+        return redirect(request, notebook)
+    elif len(notebooks) == 1:
+        return redirect(request, notebooks[0])
     else:
-        return {'pages': pages}
+        return {'notebooks': notebooks}
 
 
 @view_config(context=UserNotFound, renderer='not_invited.mako', permission=NO_PERMISSION_REQUIRED)
@@ -37,23 +37,23 @@ def change_username(context, request):
     return HTTPFound(request.referer)
 
 
-@view_config(context=Root, name='new_page',
+@view_config(context=Root, name='new_notebook',
              request_method='POST', check_csrf=True)
-def new_page(context, request):
-    page = Page(name=request.params['name'], users=[request.user])
-    DBSession.add(page)
+def new_notebook(context, request):
+    notebook = Notebook(name=request.params['name'], users=[request.user])
+    DBSession.add(notebook)
     DBSession.flush()
-    return redirect(request, page)
+    return redirect(request, notebook)
 
-@view_config(context=Page, name='delete',
-             request_method='GET', renderer='page_delete.mako')
-def page_delete(context, request):
-    return {'page': context}
+@view_config(context=Notebook, name='delete',
+             request_method='GET', renderer='notebook_delete.mako')
+def notebook_delete(context, request):
+    return {'notebook': context}
 
 
-@view_config(context=Page, name='delete',
+@view_config(context=Notebook, name='delete',
              request_method='POST', check_csrf=True)
-def page_delete_post(context, request):
+def notebook_delete_post(context, request):
     if len(context.users) == 1:
         DBSession.delete(context)
     else:
@@ -61,14 +61,14 @@ def page_delete_post(context, request):
     return HTTPFound('/')
 
 
-@view_config(context=Page, renderer='page.mako')
-def page(context, request):
+@view_config(context=Notebook, renderer='notebook.mako')
+def notebook(context, request):
     tasks = list(context)
     urgent_tasks = [t for t in tasks if t.emergency >= 0.8]
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
 
     time_spend_today = (DBSession.query(func.sum(Execution.length))
-                        .join('task').filter(Task.page==context)
+                        .join('task').filter(Task.notebook==context)
                         .filter(or_(Execution.executor==request.user,
                                     Execution.executor==None))
                         .filter(func.date(Execution.time) == datetime.date.today())
@@ -84,10 +84,10 @@ def page(context, request):
         suggested_something = True
 
     last_executions = (Execution.query()
-                       .join('task').filter(Task.page==context)
+                       .join('task').filter(Task.notebook==context)
                        .order_by(Execution.time.desc()).limit(5).all())
     return {
-        'page': context,
+        'notebook': context,
         'tasks': tasks,
         'urgent_tasks': urgent_tasks,
         'last_executions': last_executions,
@@ -95,13 +95,13 @@ def page(context, request):
         }
 
 
-@view_config(context=Page, name='manage', renderer='page_manage.mako')
-def page_manage(context, request):
-    return {'page': context}
+@view_config(context=Notebook, name='manage', renderer='notebook_manage.mako')
+def notebook_manage(context, request):
+    return {'notebook': context}
 
 
-@view_config(context=Page, name='invite', request_method='POST', check_csrf=True)
-def page_invite_post(context, request):
+@view_config(context=Notebook, name='invite', request_method='POST', check_csrf=True)
+def notebook_invite_post(context, request):
     email = request.params['email']
     if not email in context.invites:
         context.invites.append(email)
@@ -110,15 +110,15 @@ def page_invite_post(context, request):
     return redirect(request,context, 'manage')
 
 
-@view_config(context=Page, name='join', permission='auth')
-def page_join(context, request):
+@view_config(context=Notebook, name='join', permission='auth')
+def notebook_join(context, request):
     if request.user.email in context.invites:
         context.invites.remove(request.user.email)
         context.users.append(request.user)
         request.flash_success('You have been added to %s'%context.name)
         return redirect(request, context)
     else:
-        request.flash_error("You aren't invited to this page")
+        request.flash_error("You aren't invited to this notebook")
         return redirect(request, request.root)
 
 
@@ -152,10 +152,10 @@ def execute(context, request):
         request.flash_success('Task executed')
     return redirect(request, context)
 
-@view_config(context=Page, name='new_task',
+@view_config(context=Notebook, name='new_task',
              request_method='POST', check_csrf=True)
 def new_task(context, request):
-    task = Task(page=context,
+    task = Task(notebook=context,
                 name=request.params['name'],
                 periodicity=int(request.params['periodicity']))
     DBSession.add(task)

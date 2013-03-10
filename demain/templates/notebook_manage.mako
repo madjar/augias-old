@@ -1,10 +1,10 @@
 <%inherit file="base.mako"/>
 
-<h2>Manage ${page}</h2>
+<h2>Manage ${notebook}</h2>
 <h3>People with access</h3>
 
 <ul>
-    %for u in page.users:
+    %for u in notebook.users:
         <li>${u}</li>
     %endfor
 </ul>
@@ -20,7 +20,7 @@
 <h3>Invited people</h3>
 
 <ul>
-    %for i in page.invites:
+    %for i in notebook.invites:
     <li>${i}</li>
     %endfor
 </ul>

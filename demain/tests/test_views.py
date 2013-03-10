@@ -2,7 +2,7 @@ import datetime
 from unittest.mock import create_autospec
 from pyramid import testing
 from demain.tests import TestCase
-from demain.models import Root, User, Page, Task, DBSession, Execution
+from demain.models import Root, User, Notebook, Task, DBSession, Execution
 
 
 class DummyRequest(testing.DummyRequest):
@@ -34,94 +34,94 @@ class HomeTest(TestCase):
         root = Root(request)
         return home(root, request)
 
-    def test_create_page_if_user_has_none(self):
+    def test_create_notebook_if_user_has_none(self):
         user = User(email='tagada.tsoin@example.com')
-        self.assertEqual(Page.query().count(), 0)
+        self.assertEqual(Notebook.query().count(), 0)
 
         result = self._call_view(user=user)
 
-        self.assertEqual(Page.query().count(), 1)
-        page = Page.query().one()
-        self.assertEqual(page.users, [user])
+        self.assertEqual(Notebook.query().count(), 1)
+        notebook = Notebook.query().one()
+        self.assertEqual(notebook.users, [user])
         self.assertEqual(result.code, 302)
-        self.assertEqual(result.location, DummyRequest().resource_url(page))
+        self.assertEqual(result.location, DummyRequest().resource_url(notebook))
 
-    def test_redirect_to_page_if_user_has_one(self):
+    def test_redirect_to_notebook_if_user_has_one(self):
         user = User(email='tagada.tsoin@example.com')
-        page = Page(name='some page', users=[user])
-        DBSession.add_all([user, page])
+        notebook = Notebook(name='some notebook', users=[user])
+        DBSession.add_all([user, notebook])
         DBSession.flush()
-        self.assertEqual(Page.query().count(), 1)
+        self.assertEqual(Notebook.query().count(), 1)
 
         result = self._call_view(user=user)
 
-        self.assertEqual(Page.query().count(), 1)
+        self.assertEqual(Notebook.query().count(), 1)
         self.assertEqual(result.code, 302)
-        self.assertEqual(result.location, DummyRequest().resource_url(page))
+        self.assertEqual(result.location, DummyRequest().resource_url(notebook))
 
-    def test_list_pages_if_user_has_many(self):
+    def test_list_notebooks_if_user_has_many(self):
         user = User(email='tagada.tsoin@example.com')
-        page1 = Page(name='some page', users=[user])
-        page2 = Page(name='some other page', users=[user])
+        notebook1 = Notebook(name='some notebook', users=[user])
+        notebook2 = Notebook(name='some other notebook', users=[user])
 
         result = self._call_view(user=user)
 
-        self.assertEqual(result['pages'], [page1, page2])
+        self.assertEqual(result['notebooks'], [notebook1, notebook2])
 
 
-class PageTest(TestCase):
-    def test_page(self):
-        from demain.views import page
-        p = Page(name='some page')
-        task = Task(name='some task', page=p)
+class NotebookTest(TestCase):
+    def test_notebook(self):
+        from demain.views import notebook
+        n = Notebook(name='some notebook')
+        task = Task(name='some task', notebook=n)
         request = DummyRequest(user=None)
 
-        result = page(p, request)
+        result = notebook(n, request)
 
         self.assertEqual(list(result['tasks'])[0].name, 'some task')
 
     def test_last_executions(self):
-        from demain.views import page
-        p = Page(name='some page')
-        task = Task(name='some task', page=p, periodicity=12)
+        from demain.views import notebook
+        n = Notebook(name='some notebook')
+        task = Task(name='some task', notebook=n, periodicity=12)
         user = User(email='tagada@example.com')
         task.execute(user, 5)
         task.execute(user, 10)
         request = DummyRequest(user=user)
 
-        result = page(p, request)
+        result = notebook(n, request)
 
         last_executions = result['last_executions']
         self.assertEqual(len(last_executions), 2)
         self.assertEqual(last_executions[0].length, 10)
 
-    def _create_task_and_execute(self, page, user, length, time=None):
-        t = Task(name='some task', page=page, periodicity=42)
+    def _create_task_and_execute(self, notebook, user, length, time=None):
+        t = Task(name='some task', notebook=notebook, periodicity=42)
         t.execute(user, length, time)
         return t
 
-    def test_last_executions_from_other_pages_do_not_appear(self):
-        from demain.views import page
-        p1 = Page(name='some page')
-        p2 = Page(name='another page')
+    def test_last_executions_from_other_notebooks_do_not_appear(self):
+        from demain.views import notebook
+        p1 = Notebook(name='some notebook')
+        p2 = Notebook(name='another notebook')
         user = User(email='tagada@example.com')
         self._create_task_and_execute(p1, None, 10)
         request = DummyRequest(user=user)
 
-        result = page(p2, request)
+        result = notebook(p2, request)
         self.assertEqual(len(result['last_executions']), 0)
 
     def test_suggestions(self):
-        from demain.views import page
-        p = Page(name='some page')
+        from demain.views import notebook
+        n = Notebook(name='some notebook')
         user = User(email='tagada@example.com')
         long_ago = datetime.datetime.utcfromtimestamp(0)
-        self._create_task_and_execute(p, user, 10, long_ago)
-        self._create_task_and_execute(p, user, 10, long_ago)
-        self._create_task_and_execute(p, user, 10, long_ago)
+        self._create_task_and_execute(n, user, 10, long_ago)
+        self._create_task_and_execute(n, user, 10, long_ago)
+        self._create_task_and_execute(n, user, 10, long_ago)
 
         request = DummyRequest(user=user)
-        result = page(p, request)
+        result = notebook(n, request)
 
         tasks = result['tasks']
         self.assertEqual(tasks[0].suggested, True)
@@ -129,32 +129,32 @@ class PageTest(TestCase):
         self.assertEqual(tasks[2].suggested, False)
 
     def test_suggest_even_when_someone_else_did_something(self):
-        from demain.views import page
-        p = Page(name='some page')
+        from demain.views import notebook
+        n = Notebook(name='some notebook')
         user1 = User(email='tagada@example.com')
         user2 = User(email='sir_foobar@example.com')
         long_ago = datetime.datetime.utcfromtimestamp(0)
-        self._create_task_and_execute(p, user1, 10, long_ago)
-        self._create_task_and_execute(p, user2, 60)
+        self._create_task_and_execute(n, user1, 10, long_ago)
+        self._create_task_and_execute(n, user2, 60)
 
         request = DummyRequest(user=user1)
-        result = page(p, request)
+        result = notebook(n, request)
 
         urgent = result['urgent_tasks']
         self.assertEqual(len(urgent), 1)
         self.assertEqual(urgent[0].suggested, True)
 
-    def test_suggest_when_execution_in_other_page(self):
-        from demain.views import page
-        p1 = Page(name='some page')
-        p2 = Page(name='other page')
+    def test_suggest_when_execution_in_other_notebook(self):
+        from demain.views import notebook
+        p1 = Notebook(name='some notebook')
+        p2 = Notebook(name='other notebook')
         user = User(email='tagada@example.com')
         long_ago = datetime.datetime.utcfromtimestamp(0)
         self._create_task_and_execute(p1, user, 10, long_ago)
         self._create_task_and_execute(p2, user, 60)
 
         request = DummyRequest(user=user)
-        result = page(p1, request)
+        result = notebook(p1, request)
 
         urgent = result['urgent_tasks']
         self.assertEqual(len(urgent), 1)
@@ -163,91 +163,91 @@ class PageTest(TestCase):
 
 class InviteTest(TestCase):
     def test_add_invite(self):
-        from demain.views import page_invite_post
-        p = Page(name='some page')
+        from demain.views import notebook_invite_post
+        n = Notebook(name='some notebook')
 
         request = DummyRequest({'email': 'tagada@example.com'})
-        page_invite_post(p, request)
+        notebook_invite_post(n, request)
 
-        self.assertEqual(p.invites, ['tagada@example.com'])
+        self.assertEqual(n.invites, ['tagada@example.com'])
 
     def test_add_invite_is_idempotent(self):
-        from demain.views import page_invite_post
-        p = Page(name='some page')
+        from demain.views import notebook_invite_post
+        n = Notebook(name='some notebook')
 
         request = DummyRequest({'email': 'tagada@example.com'})
-        page_invite_post(p, request)
-        page_invite_post(p, request)
+        notebook_invite_post(n, request)
+        notebook_invite_post(n, request)
 
-        self.assertEqual(p.invites, ['tagada@example.com'])
+        self.assertEqual(n.invites, ['tagada@example.com'])
 
     def test_accept_invite(self):
-        from demain.views import page_join
-        p = Page(name='some page', invites=['tagada@example.com'])
+        from demain.views import notebook_join
+        n = Notebook(name='some notebook', invites=['tagada@example.com'])
         user = User(email='tagada@example.com')
 
         request = DummyRequest(user=user)
-        page_join(p, request)
-        self.assertEqual(p.users, [user])
-        self.assertEqual(p.invites, [])
+        notebook_join(n, request)
+        self.assertEqual(n.users, [user])
+        self.assertEqual(n.invites, [])
 
     def test_cant_accept_not_invite(self):
-        from demain.views import page_join
-        p = Page(name='some page')
+        from demain.views import notebook_join
+        n = Notebook(name='some notebook')
         user = User(email='tagada@example.com')
 
         request = DummyRequest(user=user)
-        page_join(p, request)
+        notebook_join(n, request)
 
-        self.assertEqual(p.users, [])
+        self.assertEqual(n.users, [])
 
-class NewPageTest(TestCase):
-    def test_new_page(self):
-        from demain.views import new_page
+class NewNotebookTest(TestCase):
+    def test_new_notebook(self):
+        from demain.views import new_notebook
         user = User(email='tagada@example.com')
-        request = DummyRequest({'name': 'First page'},
+        request = DummyRequest({'name': 'First notebook'},
                                        user=user)
 
-        result = new_page(None, request)
+        result = new_notebook(None, request)
 
-        self.assertEqual(Page.query().count(), 1)
-        p = Page.query().one()
-        self.assertEqual(p.name, 'First page')
-        self.assertEqual(p.users, [user])
+        self.assertEqual(Notebook.query().count(), 1)
+        n = Notebook.query().one()
+        self.assertEqual(n.name, 'First notebook')
+        self.assertEqual(n.users, [user])
 
 
-class DeletePageTest(TestCase):
-    def test_last_user_deletes_page(self):
-        from demain.views import page_delete_post
+class DeleteNotebookTest(TestCase):
+    def test_last_user_deletes_notebook(self):
+        from demain.views import notebook_delete_post
         user = User(email='tagada@example.com')
-        page = Page(name='wizzz', users=[user])
-        DBSession.add_all([user, page])
-        self.assertEqual(Page.query().count(), 1)
+        notebook = Notebook(name='wizzz', users=[user])
+        DBSession.add_all([user, notebook])
+        self.assertEqual(Notebook.query().count(), 1)
         request = DummyRequest(user=user)
 
-        result = page_delete_post(page, request)
+        result = notebook_delete_post(notebook, request)
 
-        self.assertEqual(Page.query().count(), 0)
+        self.assertEqual(Notebook.query().count(), 0)
 
-    def test_non_last_user_leaves_page(self):
-        from demain.views import page_delete_post
+    def test_non_last_user_leaves_notebook(self):
+        from demain.views import notebook_delete_post
         user1 = User(email='tagada@example.com')
         user2 = User(email='tsoin@example.com')
-        page = Page(name='wizzz', users=[user1, user2])
-        DBSession.add_all([user1, user2, page])
+        notebook = Notebook(name='wizzz', users=[user1, user2])
+        DBSession.add_all([user1, user2, notebook])
 
         request = DummyRequest(user=user1)
 
-        result = page_delete_post(page, request)
+        result = notebook_delete_post(notebook, request)
 
-        self.assertEqual(Page.query().count(), 1)
-        self.assertEqual(page.users, [user2])
+        self.assertEqual(Notebook.query().count(), 1)
+        self.assertEqual(notebook.users, [user2])
 
 class TaskTest(TestCase):
     def _get_task(self):
-        page = Page(name='some page')
-        task = Task(name='some task', page=page, periodicity=42)
-        DBSession.add_all([page, task])
+        notebook = Notebook(name='some notebook')
+        task = Task(name='some task', notebook=notebook, periodicity=42)
+        DBSession.add_all([notebook, task])
         return task
 
     def test_task(self):
@@ -332,17 +332,17 @@ class NewTaskTest(TestCase):
     def test_new_task(self):
         from demain.views import new_task
         user = User(email='tagada@example.com')
-        page = Page(users=[user], name='some page')
-        DBSession.add_all([user, page])
+        notebook = Notebook(users=[user], name='some notebook')
+        DBSession.add_all([user, notebook])
         request = DummyRequest(dict(name='Task name',
                                     periodicity=12))
 
-        result = new_task(page, request)
+        result = new_task(notebook, request)
 
         self.assertEqual(result.code, 302)
         task = DBSession.query(Task).one()
         self.assertEqual(task.name, 'Task name')
         self.assertEqual(task.periodicity, 12)
-        self.assertEqual(task.page, page)
+        self.assertEqual(task.notebook, notebook)
         self.assertEqual(len(task.executions), 0)
         self.assertEqual(task.last_execution, None)

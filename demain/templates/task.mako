@@ -14,7 +14,7 @@
             </div>
 
             <select name="executor">
-                %for user in task.page.users:
+                %for user in task.notebook.users:
                         <option value="${user.email}" ${'selected' if user == request.user else ''}>${user}</option>
                 %endfor
                 <option value="">Collective execution</option>

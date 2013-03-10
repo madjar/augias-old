@@ -4,7 +4,7 @@ from pyramid.paster import setup_logging, get_appsettings
 from sqlalchemy import engine_from_config
 import transaction
 from demain import DBSession, Base
-from demain.models import Task, Page
+from demain.models import Task, Notebook
 
 def main(argv=sys.argv):
     config_uri = argv[1]
@@ -16,11 +16,11 @@ def main(argv=sys.argv):
     with transaction.manager:
         with open(argv[2], encoding='latin1') as f:
             reader = csv.reader(f, delimiter=';')
-            p = Page(name='some page')
+            n = Notebook(name='some notebook')
             for name, length, periodicity in reader:
-                task = Task(name=name, periodicity=periodicity, page=p)
+                task = Task(name=name, periodicity=periodicity, notebook=n)
                 DBSession.add(task)
-            DBSession.add(p)
+            DBSession.add(n)
     print('Done')
 
 if __name__=='__main__':

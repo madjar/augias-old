@@ -11,11 +11,11 @@
 
 <%block name="navbar">
     <ul class="nav">
-        % for page in request.root.pages():
-            ${menu_item(page, page)}
+        % for notebook in request.root.notebooks():
+            ${menu_item(notebook, notebook)}
         % endfor
     ##                    TODO : check when there are a lot of those
-                                    <li><a href="#" data-toggle="modal" data-target="#newPageModal">Add new page</a></li>
+                                    <li><a href="#" data-toggle="modal" data-target="#newNotebookModal">Add new notebook</a></li>
     </ul>
     % if request.user:
         <div class="navbar-text pull-right">Logged in as ${request.user}
@@ -35,20 +35,20 @@
 ${next.body()}
 
 
-<form method="POST" action="${request.resource_url(request.root, 'new_page')}">
-    <div id="newPageModal" class="modal hide fade">
+<form method="POST" action="${request.resource_url(request.root, 'new_notebook')}">
+    <div id="newNotebookModal" class="modal hide fade">
         <div class="modal-header">
             <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-            <h3>Add new page</h3>
+            <h3>Add new notebook</h3>
         </div>
         <div class="modal-body">
             <label>Label name</label>
-            <input type="text" id="newPageInput" name="name" placeholder="Type something…">
+            <input type="text" id="newNotebookInput" name="name" placeholder="Type something…">
             ${h.csrf_token(request)}
         </div>
         <div class="modal-footer">
             <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
-            <button type="submit" class="btn btn-primary">Create page</button>
+            <button type="submit" class="btn btn-primary">Create notebook</button>
         </div>
     </div>
 </form>
@@ -65,8 +65,8 @@ ${next.body()}
         }).click(function(e){
                     $('#changeNameInput').focus();
                 });
-        $('#newPageModal').on('shown', function () {
-            $('#newPageInput').focus();
+        $('#newNotebookModal').on('shown', function () {
+            $('#newNotebookInput').focus();
         });
     })
 </script>

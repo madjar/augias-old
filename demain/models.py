@@ -74,8 +74,8 @@ class Task(Base):
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True)
     name = Column(String(64))
-    page_id = Column(Integer, ForeignKey('pages.id'), nullable=False)
-    page = relationship('Page', backref=backref('tasks', cascade='all, delete-orphan'))
+    notebook_id = Column(Integer, ForeignKey('notebooks.id'), nullable=False)
+    notebook = relationship('Notebook', backref=backref('tasks', cascade='all, delete-orphan'))
 
     periodicity = Column(Integer, nullable=False) # days
     last_execution = Column(DateTime)
@@ -90,7 +90,7 @@ class Task(Base):
 
     @property
     def __parent__(self):
-        return self.page
+        return self.notebook
 
     @property
     def __name__(self):
@@ -150,22 +150,22 @@ class Execution(Base):
     length = Column(Integer)  # empty means no data
 
 
-page_authorizations = Table('page_authorizations', Base.metadata,
-    Column('page_id', Integer, ForeignKey('pages.id'), nullable=False),
+notebooks_authorizations = Table('notebooks_authorizations', Base.metadata,
+    Column('notebook_id', Integer, ForeignKey('notebooks.id'), nullable=False),
     Column('user_id', Integer, ForeignKey('users.id'), nullable=False)
 )
 
-class Page(Base):
-    """A page is a set of tasks that can be handled by one or many users"""
-    __tablename__ = 'pages'
+class Notebook(Base):
+    """A notebook is a set of tasks that can be handled by one or many users"""
+    __tablename__ = 'notebooks'
     id = Column(Integer, primary_key=True)
     name = Column(String(32), nullable=False)
-    users = relationship(User, secondary=page_authorizations, backref='pages')
-    inv = relationship('Invite', backref='page', cascade='all, delete-orphan')
+    users = relationship(User, secondary=notebooks_authorizations, backref='notebooks')
+    inv = relationship('Invite', backref='notebook', cascade='all, delete-orphan')
     invites = association_proxy('inv', 'email')
 
     def __repr__(self):
-        return '<Page "%s">'%self.name
+        return '<Notebook "%s">'%self.name
 
     def __html__(self):
         return markupsafe.escape(self.name)
@@ -180,7 +180,7 @@ class Page(Base):
 
     def __getitem__(self, item):
         try:
-            task = DBSession.query(Task).filter_by(page=self, id=item).one()
+            task = DBSession.query(Task).filter_by(notebook=self, id=item).one()
         except NoResultFound: # pragma: nocover
             raise KeyError(item)
         return task
@@ -196,7 +196,7 @@ class Page(Base):
 
 class Invite(Base):
     __tablename__ = 'invites'
-    page_id = Column(Integer, ForeignKey('pages.id'), primary_key=True)
+    notebook_id = Column(Integer, ForeignKey('notebooks.id'), primary_key=True)
     email = Column(String(40), primary_key=True)
     date = Column(DateTime, default=datetime.datetime.now)
 
@@ -204,12 +204,12 @@ class Invite(Base):
         self.email = email
 
     def __repr__(self):
-        return '<Invite "%s" to page %s >'%(self.email, self.page.name)
+        return '<Invite "%s" to notebook %s >'%(self.email, self.notebook.name)
 
 
 class Root:
     __root__ = __name__ = None
-    # TODO : review this when adding a welcome page
+    # TODO : review this when adding a welcome notebook
     __acl__ = [
         (Allow, Authenticated, 'access'),
         (Allow, Authenticated, 'auth'),
@@ -219,10 +219,10 @@ class Root:
         self.request = request
 
     def __getitem__(self, item):
-        page = Page.query().get(item)
-        if not page: #pragma: nocover
+        notebook = Notebook.query().get(item)
+        if not notebook: #pragma: nocover
             raise KeyError(item)
-        return page
+        return notebook
 
-    def pages(self):
-        return self.request.user.pages
+    def notebooks(self):
+        return self.request.user.notebooks

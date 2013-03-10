@@ -20,11 +20,11 @@
 <h2>All tasks</h2>
 ${mh.display_tasks(tasks)}
 
-<a href="${request.resource_url(page, 'delete')}" class="btn btn-danger">${'Delete' if len(page.users) == 1 else 'Leave'}</a>
-<a href="${request.resource_url(page, 'manage')}" class="btn">Manage</a>
+<a href="${request.resource_url(notebook, 'delete')}" class="btn btn-danger">${'Delete' if len(notebook.users) == 1 else 'Leave'}</a>
+<a href="${request.resource_url(notebook, 'manage')}" class="btn">Manage</a>
 <a href="#" class="btn" data-toggle="modal" data-target="#newTaskModal">Add new task</a>
 
-<form method="POST" action="${request.resource_url(page, 'new_task')}">
+<form method="POST" action="${request.resource_url(notebook, 'new_task')}">
     <div id="newTaskModal" class="modal hide fade">
         <div class="modal-header">
             <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
