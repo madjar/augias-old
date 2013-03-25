@@ -36,38 +36,37 @@ def get_email_and_assertion(audience):
     return _email_assertion
 
 
-def create_and_populate(engine=None, email=None):
+def populate(email):
     from augias.models import Base, Task, Notebook, User
-    Base.metadata.create_all(engine)
-    with transaction.manager:
-        notebook = Notebook(name='some notebook')
-        task = Task(name='some task', periodicity=7, notebook=notebook)
-        DBSession.add_all([notebook, task])
-        if email:
-            user = User(email=email, notebooks=[notebook])
-            DBSession.add(user)
+    notebook = Notebook(name='some notebook')
+    task = Task(name='some task', periodicity=7, notebook=notebook)
+    DBSession.add_all([notebook, task])
+    if email:
+        user = User(email=email, notebooks=[notebook])
+        DBSession.add(user)
 
-
-class FunctionalTests(unittest.TestCase):
+from augias.tests import TestCase
+class FunctionalTests(TestCase):
     def setUp(self):
         from augias import main
         config = {
-            'sqlalchemy.url': 'sqlite://',
+            'sqlalchemy.url': self.db_url,
             'persona.audiences': 'http://example.com',
             'persona.secret': 'Testing secret',
             'persona.verifier': 'browserid.LocalVerifier',
             'mako.directories': 'augias:templates',
             }
-        with warnings.catch_warnings():
+        with warnings.catch_warnings():  # For browserid.LocalVerifier
             warnings.simplefilter("ignore")
             app = main({}, **config)
+        super().setUp()  # This overide the app db engine
+
         self.email, self.assertion = get_email_and_assertion('http://example.com')
-        create_and_populate(email=self.email)
+        populate(email=self.email)
+
         from webtest import TestApp
         self.testapp = TestApp(app)
 
-    def tearDown(self):
-        DBSession.remove()
 
     def _login(self):
         res = self.testapp.get('/', status=403)

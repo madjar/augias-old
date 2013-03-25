@@ -24,3 +24,5 @@ WebTest==1.4.3
 zope.deprecation==4.0.2
 zope.interface==4.0.3
 zope.sqlalchemy==0.7.1
+psycopg2
+nose-testconfig
