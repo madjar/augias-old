@@ -77,23 +77,31 @@ class FunctionalTests(TestCase):
 
     def test_index(self):
         self._login()
-        res = self.testapp.get('/1', status=200)
-        self.assertIn('some task', res.unicode_body)
+        res = self.testapp.get('/')
+        res = res.follow()
+
+        self.assertIn('some task', res)
 
     def test_task(self):
         self._login()
-        res = self.testapp.get('/1/1')
-        self.assertIn('<h2>some task</h2>', res.unicode_body)
+        res = self.testapp.get('/')
+        res = res.follow()
+        res = res.click('some task')
+
+        self.assertIn('<h2>some task</h2>', res)
 
     def test_unauthorized(self):
-        res = self.testapp.get('/1', status=403)
+        res = self.testapp.get('/', status=403)
 
     def test_execute(self):
         self._login()
-        res = self.testapp.get('/1/1')
+        res = self.testapp.get('/')
+        res = res.follow()
+        res = res.click('some task')
+
         form = res.forms['execution']
         form['length'] = 15
         res = form.submit(status=302)
         res = res.follow()
-        self.assertIn('(15 mins)', res.unicode_body)
-        self.assertIn(self.email, res.unicode_body)
+        self.assertIn('(15 mins)', res)
+        self.assertIn(self.email, res)

@@ -159,7 +159,7 @@ class Notebook(Base):
     """A notebook is a set of tasks that can be handled by one or many users"""
     __tablename__ = 'notebooks'
     id = Column(Integer, primary_key=True)
-    name = Column(String(32), nullable=False)
+    name = Column(String(64), nullable=False)
     users = relationship(User, secondary=notebooks_authorizations, backref='notebooks')
     inv = relationship('Invite', backref='notebook', cascade='all, delete-orphan')
     invites = association_proxy('inv', 'email')
