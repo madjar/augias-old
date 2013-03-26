@@ -10,7 +10,7 @@
 </ul>
 
 <h3>Invite people</h3>
-<form method="POST">
+<form method="POST" action="${request.resource_path(notebook, 'invite')}">
     ${h.csrf_token(request)}
     <label for="email">Email</label>
     <input id="email" type="email" name="email"/>
