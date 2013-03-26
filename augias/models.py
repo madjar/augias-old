@@ -180,8 +180,9 @@ class Notebook(Base):
 
     def __getitem__(self, item):
         try:
-            task = DBSession.query(Task).filter_by(notebook=self, id=item).one()
-        except NoResultFound: # pragma: nocover
+            id = int(item)
+            task = DBSession.query(Task).filter_by(notebook=self, id=id).one()
+        except (NoResultFound, ValueError): # pragma: nocover
             raise KeyError(item)
         return task
 
@@ -219,7 +220,11 @@ class Root:
         self.request = request
 
     def __getitem__(self, item):
-        notebook = Notebook.query().get(item)
+        try:
+            id = int(item)
+        except ValueError: #pragma: nocover
+            raise KeyError(item)
+        notebook = Notebook.query().get(id)
         if not notebook: #pragma: nocover
             raise KeyError(item)
         return notebook
