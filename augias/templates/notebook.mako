@@ -9,20 +9,25 @@
 <div class="row-fluid">
     <div class="span9">
         ${mh.display_tasks(urgent_tasks, 3)}
-        </div>
+        <h2>All tasks</h2>
+        ${mh.display_tasks(tasks, 3)}
+    </div>
     <div class="span3 well" >
         <h3>Recent executions</h3>
         %for execution in last_executions:
-            <p>${mh.display_execution(execution)}</p>
+                <p>${mh.display_execution(execution)}</p>
         %endfor
+
+        <ul class="unstyled">
+            <li><a href="#" class="btn btn-block" data-toggle="modal" data-target="#newTaskModal">Add new task</a></li>
+            <li><a href="${request.resource_url(notebook, 'manage')}" class="btn btn-block">Manage</a></li>
+            <li><a href="${request.resource_url(notebook, 'delete')}" class="btn btn-danger btn-block">${'Delete' if len(notebook.users) == 1 else 'Leave'}</a></li>
+        </ul>
     </div>
 </div>
-<h2>All tasks</h2>
-${mh.display_tasks(tasks)}
 
-<a href="${request.resource_url(notebook, 'delete')}" class="btn btn-danger">${'Delete' if len(notebook.users) == 1 else 'Leave'}</a>
-<a href="${request.resource_url(notebook, 'manage')}" class="btn">Manage</a>
-<a href="#" class="btn" data-toggle="modal" data-target="#newTaskModal">Add new task</a>
+
+
 
 <form id="new_task" method="POST" action="${request.resource_url(notebook, 'new_task')}">
     <div id="newTaskModal" class="modal hide fade">

@@ -8,7 +8,9 @@
                         <i class="icon-thumbs-up"></i>
                 %endif
             ${task}</h4>
-            <div class="pull-right">${int(task.mean_execution)} mins</div>
+            % if task.mean_execution:
+                <div class="pull-right">${int(task.mean_execution)} mins</div>
+            % endif
             <p>${task.last_execution and h.nice_date(task.last_execution)}</p>
         </div>
     </a>
