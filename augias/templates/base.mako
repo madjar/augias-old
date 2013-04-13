@@ -26,6 +26,13 @@
     % endif
 </%block>
 
+% if request.user and not request.user.name:
+    <div class="alert alert-info">
+##        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        Hey, it looks like you haven't set a username.
+        <button class="btn" onclick="$('#changeName').popover('show')">Do it now</button>
+    </div>
+% endif
 % for message in request.session.pop_flash():
     <div class="alert ${message.cssclass() if hasattr(message, 'level') else 'alert-info'}">
         <button type="button" class="close" data-dismiss="alert">×</button>

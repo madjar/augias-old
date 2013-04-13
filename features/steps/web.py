@@ -34,3 +34,7 @@ def step(context):
 @then('I should see "{content}"')
 def step(context, content):
     assert_in(content, context.result)
+
+@then('I should not see "{content}"')
+def step(context, content):
+    assert_not_in(content, context.result)

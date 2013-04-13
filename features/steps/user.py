@@ -38,8 +38,9 @@ def get_email_and_assertion(audience):
     def _login(self):
         res = self.testapp.get('/', status=403)
 
+step_matcher('re')
 
-@given('a logged-in user named "{name}"')
+@given('a logged-in user named "(?P<name>\w*)"')
 def step(context, name):
     email, assertion = get_email_and_assertion('http://example.com')
     with transaction.manager:
@@ -51,3 +52,5 @@ def step(context, name):
     context.app.post('/login', {'assertion': assertion,
                                 'csrf_token': token,
                                 'came_from': '/'})
+
+step_matcher('parse')
