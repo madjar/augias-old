@@ -26,6 +26,21 @@ class UserTest(TestCase):
         self.assertEqual(result.location, '/came-from')
         self.assertEqual(request.user.name, 'new_username')
 
+    def test_adding_a_name_should_rename_default_notebook(self):
+        from augias.views import change_username
+
+        user = User(email='tagada@example.com')
+        notebook = Notebook(name="tagada@example.com's notebook", users=[user])
+
+        request = DummyRequest({'username': 'Tagada'},
+                               user=user,
+                               referer='/came-from')
+
+        result = change_username(Root(request), request)
+
+        self.assertEqual(result.code, 302)
+        self.assertEqual(notebook.name, "Tagada's notebook")
+
 
 class HomeTest(TestCase):
     def _call_view(self, **kw):

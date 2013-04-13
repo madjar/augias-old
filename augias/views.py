@@ -34,6 +34,9 @@ def user_not_invited(context, request):
 @view_config(context=Root, name='change_username', check_csrf=True, request_method='POST')
 def change_username(context, request):
     request.user.name = request.params['username']
+    for notebook in request.user.notebooks:
+        notebook.name = notebook.name.replace(request.user.email,
+                                              request.user.name)
     return HTTPFound(request.referer)
 
 
