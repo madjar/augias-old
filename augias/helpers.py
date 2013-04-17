@@ -16,5 +16,5 @@ def nice_date(time):
 
 
 def csrf_token(request):
-    return Markup('<input type="hidden" name="csrf_token" value="{}">'
+    return Markup('<input type="hidden" name="csrf_token" value="{}"/>'
         .format(request.session.get_csrf_token()))
