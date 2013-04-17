@@ -17,10 +17,11 @@ def step(context, link):
 @when('I click on button "{text}"')
 def step(context, text):
     for form in context.result.forms.values():
-        if text in form.text:
-            context.result = form.submit()
-            context.result = context.result.maybe_follow()
-            return
+        for button in form.html.findAll('button'):
+            if text in button.text:
+                context.result = form.submit(button['name'])
+                context.result = context.result.maybe_follow()
+                return
     else:
         raise Exception('No form found')
 

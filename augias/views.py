@@ -117,15 +117,22 @@ def notebook_invite_post(context, request):
 
 @view_config(context=Notebook, name='join', request_method='POST',
              check_csrf=True, permission='auth')
-def notebook_join(context, request):
-    if request.user.email in context.invites:
+def notebook_answer_invite(context, request):
+    if not request.user.email in context.invites:
+        request.flash_error("You aren't invited to this notebook")
+        return redirect(request, request.root)
+
+    if 'accept' in request.params:
         context.invites.remove(request.user.email)
         context.users.append(request.user)
         request.flash_success('You have been added to %s'%context.name)
         return redirect(request, context)
-    else:
-        request.flash_error("You aren't invited to this notebook")
-        return redirect(request, request.root)
+    elif 'decline' in request.params:
+        context.invites.remove(request.user.email)
+        request.flash_success('Invite to %s declined'%context.name)
+    return redirect(request, request.root)
+
+
 
 
 @view_config(context=Task, renderer='task.mako')

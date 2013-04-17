@@ -27,3 +27,13 @@ Feature: Notebook
       Then I should see "Stuff to do"
       When I click on button "accept invite"
       Then I should see "Stuff to do</a>"
+
+  Scenario: decline an invite
+     Given a logged-in user named "Georges"
+       And a notebook named "Stuff to do"
+       And the user's email is invited to the notebook
+      When I go to "/"
+      Then I should see "Stuff to do"
+      When I click on button "decline invite"
+      Then I should see "Invite to Stuff to do declined"
+       and I should not see "Stuff to do</a>"

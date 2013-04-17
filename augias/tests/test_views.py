@@ -218,22 +218,32 @@ class InviteTest(TestCase):
         self.assertEqual(n.invites, ['tagada@example.com'])
 
     def test_accept_invite(self):
-        from augias.views import notebook_join
+        from augias.views import notebook_answer_invite
         n = Notebook(name='some notebook', invites=['tagada@example.com'])
         user = User(email='tagada@example.com')
 
-        request = DummyRequest(user=user)
-        notebook_join(n, request)
+        request = DummyRequest({'accept': 1}, user=user)
+        notebook_answer_invite(n, request)
         self.assertEqual(n.users, [user])
         self.assertEqual(n.invites, [])
 
+    def test_decline_invite(self):
+        from augias.views import notebook_answer_invite
+        n = Notebook(name='some notebook', invites=['tagada@example.com'])
+        user = User(email='tagada@example.com')
+
+        request = DummyRequest({'decline': 1}, user=user)
+        notebook_answer_invite(n, request)
+        self.assertEqual(n.users, [])
+        self.assertEqual(n.invites, [])
+
     def test_cant_accept_not_invite(self):
-        from augias.views import notebook_join
+        from augias.views import notebook_answer_invite
         n = Notebook(name='some notebook')
         user = User(email='tagada@example.com')
 
-        request = DummyRequest(user=user)
-        notebook_join(n, request)
+        request = DummyRequest({'accept': 1}, user=user)
+        notebook_answer_invite(n, request)
 
         self.assertEqual(n.users, [])
 
