@@ -1,22 +1,18 @@
 from nose.tools import *
 
-# TODO : automatic follow redirect
 @when('I go to "{path}"')
 def step(context, path):
     context.result = context.app.get(path)
+    context.result = context.result.maybe_follow()
 
 @when('I go to "{path}" (expecting an error)')
 def step(context, path):
     context.result = context.app.get(path, expect_errors=True)
 
-@when('I follow the redirection')
-@then('I should be redirected')
-def step(context):
-    context.result = context.result.follow()
-
 @when('I click "{link}"')
 def step(context, link):
     context.result = context.result.click(link)
+    context.result = context.result.maybe_follow()
 
 @when('I fill the form "{form}"')
 def step(context, form):
@@ -29,6 +25,7 @@ def step(context, content, field):
 @when('I submit the form')
 def step(context):
     context.result = context.form.submit()
+    context.result = context.result.maybe_follow()
 
 
 @then('I should see "{content}"')
