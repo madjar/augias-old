@@ -49,7 +49,7 @@ class HomeTest(TestCase):
         root = Root(request)
         return home(root, request)
 
-    def test_create_notebook_if_user_has_none(self):
+    def test_create_notebook_if_user_has_none_and_no_invites(self):
         user = User(email='tagada.tsoin@example.com')
         self.assertEqual(Notebook.query().count(), 0)
 
@@ -61,7 +61,7 @@ class HomeTest(TestCase):
         self.assertEqual(result.code, 302)
         self.assertEqual(result.location, DummyRequest().resource_url(notebook))
 
-    def test_redirect_to_notebook_if_user_has_one(self):
+    def test_redirect_to_notebook_if_user_has_one_and_no_invites(self):
         user = User(email='tagada.tsoin@example.com')
         notebook = Notebook(name='some notebook', users=[user])
         DBSession.add_all([user, notebook])
@@ -82,6 +82,27 @@ class HomeTest(TestCase):
         result = self._call_view(user=user)
 
         self.assertEqual(result['notebooks'], [notebook1, notebook2])
+
+    def test_list_if_user_has_invites_and_no_notebook(self):
+        user = User(email='tagada.tsoin@example.com')
+        notebook = Notebook(name='some notebook', invites=[user.email])
+        DBSession.add_all([user, notebook])
+
+        result = self._call_view(user=user)
+
+        self.assertEqual(result['notebooks'], [])
+        self.assertEqual(result['invites'], [notebook])
+
+    def test_list_if_user_has_invites_and_one_notebook(self):
+        user = User(email='tagada.tsoin@example.com')
+        notebook1 = Notebook(name='some notebook', users=[user])
+        notebook2 = Notebook(name='some other notebook', invites=[user.email])
+        DBSession.add_all([user, notebook1, notebook2])
+
+        result = self._call_view(user=user)
+
+        self.assertEqual(result['notebooks'], [notebook1])
+        self.assertEqual(result['invites'], [notebook2])
 
 
 class NotebookTest(TestCase):

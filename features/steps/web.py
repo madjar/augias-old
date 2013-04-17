@@ -14,6 +14,16 @@ def step(context, link):
     context.result = context.result.click(link)
     context.result = context.result.maybe_follow()
 
+@when('I click on button "{text}"')
+def step(context, text):
+    for form in context.result.forms.values():
+        if text in form.text:
+            context.result = form.submit()
+            context.result = context.result.maybe_follow()
+            return
+    else:
+        raise Exception('No form found')
+
 @when('I fill the form "{form}"')
 def step(context, form):
     context.form = context.result.forms[form]

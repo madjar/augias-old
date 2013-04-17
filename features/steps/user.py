@@ -52,5 +52,6 @@ def step(context, name):
     context.app.post('/login', {'assertion': assertion,
                                 'csrf_token': token,
                                 'came_from': '/'})
+    context.last['user'] = user
 
 step_matcher('parse')

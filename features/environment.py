@@ -8,6 +8,11 @@ from augias.models import Base, DBSession
 logging.root.addHandler(logging.NullHandler())
 
 
+class ModelsContainer(dict):
+    def __getitem__(self, item):
+        return DBSession.merge(super().__getitem__(item))
+
+
 def before_scenario(context, step):
     config = {
         'sqlalchemy.url': 'sqlite://',
@@ -21,6 +26,8 @@ def before_scenario(context, step):
         app = main({}, **config)
     Base.metadata.create_all()
     context.app = TestApp(app)
+
+    context.last = ModelsContainer()
 
 
 def after_scenario(context, step):

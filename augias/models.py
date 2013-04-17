@@ -190,7 +190,7 @@ class Notebook(Base):
         for task in self.tasks:
             yield task
 
-    @reify
+    @property
     def __acl__(self):
         return [(Allow, user.email, 'access') for user in self.users] + [(Deny, Everyone, 'access')]
 

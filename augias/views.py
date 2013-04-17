@@ -8,7 +8,7 @@ from .utils import encode_google_datatable, raw_executions_graph
 
 from .models import (
     DBSession,
-    Task, Notebook, Root, User, Execution, UserNotFound)
+    Task, Notebook, Root, User, Execution, UserNotFound, Invite)
 
 def redirect(request, *args):
     return HTTPFound(request.resource_url(*args))
@@ -16,15 +16,17 @@ def redirect(request, *args):
 @view_config(context=Root, renderer='notebook_list.mako')
 def home(context, request):
     notebooks = request.user.notebooks
-    if not notebooks:
+    invites = Notebook.query()\
+        .filter(Notebook.invites.contains(request.user.email)).all()
+    if not notebooks and not invites:
         notebook = Notebook(name="%s's notebook"%request.user.__html__(), users=[request.user])
         DBSession.add(notebook)
         DBSession.flush()
         return redirect(request, notebook)
-    elif len(notebooks) == 1:
+    elif len(notebooks) == 1 and not invites:
         return redirect(request, notebooks[0])
     else:
-        return {'notebooks': notebooks}
+        return {'notebooks': notebooks, 'invites': invites}
 
 
 @view_config(context=UserNotFound, renderer='not_invited.mako', permission=NO_PERMISSION_REQUIRED)
@@ -113,7 +115,8 @@ def notebook_invite_post(context, request):
     return redirect(request,context, 'manage')
 
 
-@view_config(context=Notebook, name='join', permission='auth')
+@view_config(context=Notebook, name='join', request_method='POST',
+             check_csrf=True, permission='auth')
 def notebook_join(context, request):
     if request.user.email in context.invites:
         context.invites.remove(request.user.email)
