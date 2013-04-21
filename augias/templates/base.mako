@@ -10,6 +10,7 @@
 
 
 <%block name="navbar">
+    % if request.user:
     <ul class="nav">
         % for notebook in request.root.notebooks():
             ${menu_item(notebook, notebook)}
@@ -17,6 +18,7 @@
     ##                    TODO : check when there are a lot of those
                                     <li><a href="#" data-toggle="modal" data-target="#newNotebookModal">Add new notebook</a></li>
     </ul>
+    % endif
     % if request.user:
         <div class="navbar-text pull-right">Logged in as ${request.user}
             <a id="changeName" href="#" title="Change user name"><i class="icon-edit"></i></a>.

@@ -1,8 +1,9 @@
 import datetime
 from operator import attrgetter
 from pyramid.httpexceptions import HTTPFound
+from pyramid.renderers import render_to_response
 from pyramid.view import view_config
-from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.security import NO_PERMISSION_REQUIRED, authenticated_userid
 from sqlalchemy import func, or_
 from .utils import encode_google_datatable, raw_executions_graph
 
@@ -13,8 +14,11 @@ from .models import (
 def redirect(request, *args):
     return HTTPFound(request.resource_url(*args))
 
-@view_config(context=Root, renderer='notebook_list.mako')
+@view_config(context=Root, renderer='notebook_list.mako', permission=NO_PERMISSION_REQUIRED)
 def home(context, request):
+    if not authenticated_userid(request):
+        return render_to_response('landing.mako', {}, request)
+
     notebooks = request.user.notebooks
     invites = Notebook.query()\
         .filter(Notebook.invites.contains(request.user.email)).all()
