@@ -1,6 +1,7 @@
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.config import Configurator
 from pyramid.events import subscriber, BeforeRender
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
 from sqlalchemy import engine_from_config
 
 from .models import (
@@ -25,6 +26,9 @@ def main(global_config, **settings):
                                                hashalg='sha512',
                                                max_age=60*60*24*30) # 1 month
     config.set_authentication_policy(authn_policy)
+    session_factory = UnencryptedCookieSessionFactoryConfig(settings['persona.secret'],
+                                                            timeout=60*60*24)
+    config.set_session_factory(session_factory)
 
     config.include('augias.utils.flash')
     config.add_request_method(get_user, 'user', reify=True)
