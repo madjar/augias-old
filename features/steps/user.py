@@ -47,7 +47,7 @@ def step(context, name):
         user = User(email=email, name=name)
         DBSession.add(user)
 
-    result = context.app.get('/', status = 403)
+    result = context.app.get('/')
     token = re.findall(r"value='([0-9a-f]*)'", result.unicode_body)[0]
     context.app.post('/login', {'assertion': assertion,
                                 'csrf_token': token,

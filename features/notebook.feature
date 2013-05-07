@@ -6,7 +6,8 @@ Feature: Notebook
        Then I should see "Georges&#39;s notebook"
 
   Scenario: Unauthorized user
-       When I go to "/" (expecting an error)
+      Given a notebook named "Stuff to do"
+       When I go to "/1" (expecting an error)
        Then I should see "403 Forbidden"
 
 
