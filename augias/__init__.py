@@ -9,7 +9,7 @@ from .models import (
     Base,
     get_user, Root)
 
-from . import helpers
+from . import helpers, utils
 
 def add_global(event):
     event['h'] = helpers
@@ -29,6 +29,8 @@ def main(global_config, **settings):
     session_factory = UnencryptedCookieSessionFactoryConfig(settings['persona.secret'],
                                                             timeout=60*60*24)
     config.set_session_factory(session_factory)
+
+    utils.cache.configure_from_config(settings, 'cache.')
 
     config.include('augias.utils.flash')
     config.add_request_method(get_user, 'user', reify=True)

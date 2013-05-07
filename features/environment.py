@@ -14,12 +14,14 @@ class ModelsContainer(dict):
 
 
 def before_scenario(context, step):
+    import augias.tests
     config = {
         'sqlalchemy.url': 'sqlite://',
         'persona.audiences': 'http://example.com',
         'persona.secret': 'Testing secret',
         'persona.verifier': 'browserid.LocalVerifier',
         'mako.directories': 'augias:templates',
+        'cache.backend': 'null',
         }
     with warnings.catch_warnings():  # For browserid.LocalVerifier
         warnings.simplefilter("ignore")
@@ -33,3 +35,6 @@ def before_scenario(context, step):
 def after_scenario(context, step):
     Base.metadata.drop_all()
     DBSession.remove()
+
+    from augias.utils import cache
+    del cache.backend

@@ -14,7 +14,8 @@ requires = [
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'waitress',
-    'pyramid_persona'
+    'pyramid_persona',
+    'dogpile.cache'
     ]
 
 setup(name='augias',

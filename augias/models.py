@@ -18,6 +18,8 @@ from sqlalchemy.orm import (
     relationship, backref)
 from sqlalchemy.orm.exc import NoResultFound
 
+from augias.utils import cache
+
 from zope.sqlalchemy import ZopeTransactionExtension
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
@@ -102,6 +104,7 @@ class Task(Base):
         execution = Execution(task=self, executor=user, time=time, length=length)
         DBSession.add(execution)
         self.last_execution = time
+        task_mean_execution.invalidate(self.id)
 
     @reify
     def emergency(self):
@@ -127,14 +130,18 @@ class Task(Base):
     @property
     def mean_execution(self):
         """This is the mean execution time over the 10 last executions"""
-        # TODO : cache this or set this as a field
+        return task_mean_execution(self.id)
 
-        executions = (Execution.query()
-                      .filter_by(task=self).filter(Execution.length != None)
-                      .order_by(Execution.time.desc())[:10])
-        if not executions:
-            return 0
-        return sum(e.length for e in executions) / len(executions)
+
+@cache.cache_on_arguments()
+def task_mean_execution(task_id):
+    executions = (Execution.query()
+                  .filter_by(task_id=task_id).filter(Execution.length != None)
+                  .order_by(Execution.time.desc())[:10])
+    if not executions:
+        return 0
+    return sum(e.length for e in executions) / len(executions)
+
 
 
 class Execution(Base):

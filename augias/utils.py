@@ -1,6 +1,9 @@
 import datetime
 import json
 from markupsafe import escape, Markup
+import dogpile.cache
+
+cache = dogpile.cache.make_region()
 
 
 class FlashMessage(str):
