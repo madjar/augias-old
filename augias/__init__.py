@@ -1,3 +1,4 @@
+import os
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.config import Configurator
 from pyramid.events import subscriber, BeforeRender
@@ -17,6 +18,8 @@ def add_global(event):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+    if settings.get('heroku'):
+        settings = heroku_settings(settings)
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -41,3 +44,18 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.scan('.views')
     return config.make_wsgi_app()
+
+
+
+def heroku_settings(settings):
+    env = os.environ
+
+    settings.update({
+        'sqlalchemy.url': env['DATABASE_URL'],
+        'cache.backend': 'dogpile.cache.redis',
+        'cache.expiration_time': 3600,
+        'cache.arguments.redis_expiration_time': 4000,
+        'cache.arguments.url': env['REDISCLOUD_URL'],
+    })
+
+    return settings
