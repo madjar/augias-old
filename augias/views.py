@@ -103,6 +103,7 @@ def notebook(context, request):
         'notebook': context,
         'tasks': tasks,
         'urgent_tasks': urgent_tasks,
+        'urgent_tasks_time': int(sum(t.mean_execution for t in urgent_tasks)),
         'last_executions': last_executions,
         'suggested_something': suggested_something,
         }

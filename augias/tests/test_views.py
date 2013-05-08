@@ -196,6 +196,20 @@ class NotebookTest(TestCase):
         self.assertEqual(len(urgent), 1)
         self.assertEqual(urgent[0].suggested, True)
 
+    def test_suggest_total_time_of_all_pending_tasks(self):
+        from augias.views import notebook
+        n = Notebook(name='some notebook')
+        user = User(email='tagada@example.com')
+        long_ago = datetime.datetime.utcfromtimestamp(0)
+        self._create_task_and_execute(n, user, 10, long_ago)
+        self._create_task_and_execute(n, user, 10, long_ago)
+        self._create_task_and_execute(n, user, 10, long_ago)
+
+        request = DummyRequest(user=user)
+        result = notebook(n, request)
+
+        self.assertEqual(result['urgent_tasks_time'], 30)
+
 
 class InviteTest(TestCase):
     def test_add_invite(self):
