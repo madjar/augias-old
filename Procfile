@@ -1,1 +1,1 @@
-web: pserve heroku.ini db_url=$DATABASE_URL http_port=$PORT
+web: pserve heroku.ini http_port=$PORT
