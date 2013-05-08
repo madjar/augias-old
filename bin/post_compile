@@ -1,2 +1,3 @@
 echo "-----> I'm post-compile hook"
 pip install -e .
+augias_db_upgrade heroku.ini db_url=$DATABASE_URL

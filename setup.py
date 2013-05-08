@@ -43,6 +43,6 @@ setup(name='augias',
       [console_scripts]
       augias_initialize_db = augias.scripts.initializedb:main
       augias_add_user = augias.scripts.add_user:main
+      augias_db_upgrade = augias.scripts.alembic_upgrade:main
       """,
       )
-
