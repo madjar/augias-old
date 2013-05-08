@@ -73,6 +73,8 @@ def get_user(request):
 
 
 class Task(Base):
+    EMERGENCY_THRESHOLD = 0.8
+
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True)
     name = Column(String(64))
@@ -109,7 +111,7 @@ class Task(Base):
     @reify
     def emergency(self):
         if not self.last_execution:
-            return 0
+            return Task.EMERGENCY_THRESHOLD
         days_since = (datetime.datetime.now() - self.last_execution).days
         return days_since / self.periodicity
 

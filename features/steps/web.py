@@ -14,6 +14,12 @@ def step(context, link):
     context.result = context.result.click(link)
     context.result = context.result.maybe_follow()
 
+@when('I click the first "{link}"')
+def step(context, link):
+    context.result = context.result.click(link, index=0)
+    context.result = context.result.maybe_follow()
+
+
 @when('I click on button "{text}"')
 def step(context, text):
     for form in context.result.forms.values():

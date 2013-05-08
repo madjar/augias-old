@@ -77,7 +77,7 @@ def notebook_delete_post(context, request):
 @view_config(context=Notebook, renderer='notebook.mako')
 def notebook(context, request):
     tasks = list(context)
-    urgent_tasks = [t for t in tasks if t.emergency >= 0.8]
+    urgent_tasks = [t for t in tasks if t.emergency >= Task.EMERGENCY_THRESHOLD]
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
 
     time_spend_today = (DBSession.query(func.sum(Execution.length))

@@ -16,7 +16,7 @@ Feature: tasks
   Scenario: Submitting a task
       Given I have a task named "Clean the fridge"
        When I go to "/"
-        And I click "Clean the fridge"
+        And I click the first "Clean the fridge"
         And I fill the form "execution"
         And I enter "15" in "length"
         And I submit the form
