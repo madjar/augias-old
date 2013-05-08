@@ -91,7 +91,7 @@ class HomeTest(TestCase):
         result = self._call_view(user=user)
 
         self.assertEqual(result['notebooks'], [])
-        self.assertEqual(result['invites'], [notebook])
+        self.assertEqual(result['invites'], [notebook.inv[0]])
 
     def test_list_if_user_has_invites_and_one_notebook(self):
         user = User(email='tagada.tsoin@example.com')
@@ -102,7 +102,7 @@ class HomeTest(TestCase):
         result = self._call_view(user=user)
 
         self.assertEqual(result['notebooks'], [notebook1])
-        self.assertEqual(result['invites'], [notebook2])
+        self.assertEqual(result['invites'], [notebook2.inv[0]])
 
 
 class NotebookTest(TestCase):
@@ -215,17 +215,22 @@ class InviteTest(TestCase):
     def test_add_invite(self):
         from augias.views import notebook_invite_post
         n = Notebook(name='some notebook')
+        user = User(email='pouet@example.com')
 
-        request = DummyRequest({'email': 'tagada@example.com'})
+        request = DummyRequest({'email': 'tagada@example.com'}, user=user)
         notebook_invite_post(n, request)
 
         self.assertEqual(n.invites, ['tagada@example.com'])
+        inv = n.inv[0]
+        self.assertEqual(inv.email, 'tagada@example.com')
+        self.assertEqual(inv.by, user)
 
     def test_add_invite_is_idempotent(self):
         from augias.views import notebook_invite_post
         n = Notebook(name='some notebook')
+        user = User(email='pouet@example.com')
 
-        request = DummyRequest({'email': 'tagada@example.com'})
+        request = DummyRequest({'email': 'tagada@example.com'}, user=user)
         notebook_invite_post(n, request)
         notebook_invite_post(n, request)
 
@@ -266,7 +271,7 @@ class NewNotebookTest(TestCase):
         from augias.views import new_notebook
         user = User(email='tagada@example.com')
         request = DummyRequest({'name': 'First notebook'},
-                                       user=user)
+                               user=user)
 
         result = new_notebook(None, request)
 

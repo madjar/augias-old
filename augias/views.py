@@ -21,8 +21,7 @@ def home(context, request):
         return request.invoke_subrequest(Request.blank('/landing'))
 
     notebooks = request.user.notebooks
-    invites = Notebook.query()\
-        .filter(Notebook.invites.contains(request.user.email)).all()
+    invites = Invite.query().filter_by(email=request.user.email).all()
     if not notebooks and not invites:
         notebook = Notebook(name="%s's notebook"%request.user.__html__(), users=[request.user])
         DBSession.add(notebook)
@@ -118,7 +117,7 @@ def notebook_manage(context, request):
 def notebook_invite_post(context, request):
     email = request.params['email']
     if not email in context.invites:
-        context.invites.append(email)
+        context.inv.append(Invite(email, request.user))
     request.flash_success('%s invited Please note that no email has been sent.'%email)
     # TODO send email
     return redirect(request,context, 'manage')

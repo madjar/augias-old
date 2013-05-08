@@ -209,9 +209,12 @@ class Invite(Base):
     notebook_id = Column(Integer, ForeignKey('notebooks.id'), primary_key=True)
     email = Column(String(40), primary_key=True)
     date = Column(DateTime, default=datetime.datetime.now)
+    by_id = Column(Integer, ForeignKey('users.id'))
+    by = relationship(User)
 
-    def __init__(self, email):
+    def __init__(self, email, by=None):
         self.email = email
+        self.by = by
 
     def __repr__(self):
         return '<Invite "%s" to notebook %s >'%(self.email, self.notebook.name)

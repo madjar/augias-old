@@ -37,4 +37,5 @@ Feature: Notebook
       Then I should see "Stuff to do"
       When I click on button "decline invite"
       Then I should see "Invite to Stuff to do declined"
-       and I should not see "Stuff to do</a>"
+       And I should not see "Stuff to do</a>"
+
