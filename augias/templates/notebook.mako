@@ -1,6 +1,7 @@
 <%inherit file="base.mako"/>
 <%namespace name="mh" file="helpers.mako"/>
 
+%if urgent_tasks:
 <h2>What shall I do now ?</h2>
 %if suggested_something:
     <p><i class="icon-thumbs-up"></i> Got 15 minutes ? Why not do a few things ?
@@ -10,6 +11,7 @@
 </p>
 %elif urgent_tasks_time:
 <p> You could finish everything in ${urgent_tasks_time} minutes.
+%endif
 %endif
 
 <div class="row-fluid">
