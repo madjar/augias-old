@@ -18,7 +18,7 @@ def redirect(request, *args):
 @view_config(context=Root, renderer='notebook_list.mako', permission=NO_PERMISSION_REQUIRED)
 def home(context, request):
     if not request.user:
-        return request.invoke_subrequest(Request.blank('/landing'))
+        return render_to_response('landing.mako', {}, request)
 
     notebooks = request.user.notebooks
     invites = Invite.query().filter_by(email=request.user.email).all()
@@ -31,10 +31,6 @@ def home(context, request):
         return redirect(request, notebooks[0])
     else:
         return {'notebooks': notebooks, 'invites': invites}
-
-@view_config(context=Root, name='landing', renderer='landing.mako', permission=NO_PERMISSION_REQUIRED)
-def landing(context, request):
-    return {}
 
 @view_config(context=UserNotFound, renderer='not_invited.mako', permission=NO_PERMISSION_REQUIRED)
 def user_not_invited(context, request):
