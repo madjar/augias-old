@@ -27,6 +27,7 @@
         %endfor
 
         <ul class="unstyled">
+            <li><a href="${request.resource_url(notebook, 'report')}" class="btn btn-block">Weekly report</a></li>
             <li><a href="#" class="btn btn-block" data-toggle="modal" data-target="#newTaskModal">Add new task</a></li>
             <li><a href="${request.resource_url(notebook, 'manage')}" class="btn btn-block">Manage</a></li>
             <li><a href="${request.resource_url(notebook, 'delete')}" class="btn btn-danger btn-block">${'Delete' if len(notebook.users) == 1 else 'Leave'}</a></li>

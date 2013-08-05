@@ -6,7 +6,7 @@ from pyramid.request import Request
 from pyramid.view import view_config
 from pyramid.security import NO_PERMISSION_REQUIRED, authenticated_userid
 from sqlalchemy import func, or_
-from .utils import encode_google_datatable, raw_executions_graph
+from .utils import encode_google_datatable, raw_executions_graph, report_for_week
 
 from .models import (
     DBSession,
@@ -136,7 +136,13 @@ def notebook_answer_invite(context, request):
         request.flash_success('Invite to %s declined'%context.name)
     return redirect(request, request.root)
 
-
+@view_config(context=Notebook, name='report', renderer='notebook_report.mako')
+def notebook_report(context, request):
+    weeks_ago = int(request.params.get('ago', 1))
+    d = report_for_week(context, -weeks_ago)
+    d['notebook'] = context
+    d['ago'] = weeks_ago
+    return d
 
 
 @view_config(context=Task, renderer='task.mako')

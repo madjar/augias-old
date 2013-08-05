@@ -15,6 +15,7 @@ pyramid-debugtoolbar==1.0.6
 pyramid-persona==1.4
 pyramid-tm==0.7
 pyramid==1.4.3
+python-dateutil==2.1
 redis==2.7.6
 repoze.lru==0.6
 requests==1.2.3

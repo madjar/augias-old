@@ -12,6 +12,9 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri)
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
+    import augias.tests  # for the null cache backend
+    from augias.utils import cache
+    cache.configure('null')
     with transaction.manager:
         user = get_user('tagada@example.com')
         for t in DBSession.query(Task).all():

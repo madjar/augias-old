@@ -1,6 +1,8 @@
 import datetime
 import json
 from markupsafe import escape, Markup
+from dateutil.relativedelta import relativedelta, MO
+from collections import defaultdict
 import dogpile.cache
 
 cache = dogpile.cache.make_region()
@@ -68,3 +70,75 @@ def raw_executions_graph(task):
         rows.append([ex.time] + series)
 
     return encode_google_datatable(columns, rows)
+
+
+class ExecutionTime:
+    def __init__(self):
+        self.sure = 0  # Recorded time
+        self.guessed = 0  # Guessed time
+        self.missing = 0  # Executions with not time info
+
+    @property
+    def total(self):
+        return self.sure + self.guessed
+
+    def add(self, execution):
+        if execution.length is not None:
+            self.sure += execution.length
+        else:
+            guess = execution.task.mean_execution
+            if guess:
+                self.guessed += guess
+            else:
+                self.missing += 1
+
+    def __html__(self):
+        r = '{:.0f}'.format(self.total)
+        extra = ''
+        if self.guessed:
+            extra += ' (~{:.0f})'.format(self.guessed)
+        if self.missing:
+            extra += ' + {:d} miss'.format(self.missing)
+        if extra:
+            r += '<span class="muted">{}</span>'.format(extra)
+        return r
+
+
+def report_for_range(notebook, begin, end):
+    from augias.models import DBSession, Execution, Task
+    executions = (DBSession.query(Execution)
+                  .filter(Execution.time.between(begin, end))
+                  .join('task').filter(Task.notebook==notebook)).all()
+
+    total = ExecutionTime()
+    by_person = defaultdict(ExecutionTime)
+    by_task = defaultdict(lambda: defaultdict(ExecutionTime))
+
+    for e in executions:
+        total.add(e)
+        by_person[e.executor].add(e)
+        by_task[e.task][e.executor].add(e)
+        by_task[e.task]['total'].add(e)
+
+    def sorter(item):
+        task, executions = item
+        return (-executions['total'].total, task.name)
+
+    by_task = sorted(by_task.items(), key=sorter)
+
+    return {'total': total, 'by_task': by_task, 'by_person': by_person}
+
+
+def report_for_week(notebook, n=-1):
+    today = datetime.date.today()
+    begin = today + relativedelta(weekday=MO(n-1))
+    end = today + relativedelta(weekday=MO(n))
+    # TODO : tester que ça couvre exactement l'intervale que je veux
+
+    # TODO : c'est pas du beau code, du tout
+    d = report_for_range(notebook, begin, end)
+    d['begin'] = begin
+    d['end'] = end
+    return d
+
+
