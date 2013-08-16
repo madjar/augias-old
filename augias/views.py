@@ -1,11 +1,12 @@
 import datetime
 from operator import attrgetter
-from pyramid.httpexceptions import HTTPFound
+from markupsafe import Markup
+from pyramid.httpexceptions import HTTPFound, HTTPBadRequest
 from pyramid.renderers import render_to_response
-from pyramid.request import Request
 from pyramid.view import view_config
-from pyramid.security import NO_PERMISSION_REQUIRED, authenticated_userid
+from pyramid.security import NO_PERMISSION_REQUIRED
 from sqlalchemy import func, or_
+from augias import helpers
 from .utils import encode_google_datatable, raw_executions_graph, report_for_week
 
 from .models import (
@@ -171,9 +172,31 @@ def execute(context, request):
     else:
         executor_email = request.params['executor']
         executor = DBSession.query(User).filter_by(email=executor_email).one() if executor_email else None
-        context.execute(executor, length)
-        request.flash_success('Task executed')
+        exec = context.execute(executor, length)
+        message = """<form style="display:inline" method="POST" action="{}">
+            Task executed
+            <input type="hidden" name="id" value="{}"/>
+            {}
+            <button class="btn btn-small btn-warning" type="submit">Cancel</button>
+        </form>""".format(request.resource_path(context, 'cancel'),
+                          exec.id,
+                          helpers.csrf_token(request))
+        request.flash_success(Markup(message))
     return redirect(request, context)
+
+
+@view_config(context=Task, name='cancel',
+             request_method='POST', check_csrf=True)
+def cancel_exec(context, request):
+    exec_id = int(request.params['id'])
+    exec = Execution.query().get(exec_id)
+    if not exec or exec.task != context:
+        return HTTPBadRequest('Invalid execution')
+
+    exec.cancel()
+    request.flash_success('Task canceled')
+    return redirect(request, context)
+
 
 @view_config(context=Notebook, name='new_task',
              request_method='POST', check_csrf=True)

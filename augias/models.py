@@ -105,8 +105,10 @@ class Task(Base):
             time = datetime.datetime.now()
         execution = Execution(task=self, executor=user, time=time, length=length)
         DBSession.add(execution)
+        DBSession.flush()
         self.last_execution = time
         task_mean_execution.invalidate(self.id)
+        return execution
 
     @reify
     def emergency(self):
@@ -157,6 +159,15 @@ class Execution(Base):
     # Once in postgres, this optimization should be enabled
     time = Column(DateTime, nullable=False)
     length = Column(Integer)  # empty means no data
+
+    def cancel(self):
+        last_exec = (Execution.query().filter_by(task=self.task)
+                     .order_by(Execution.time.desc())
+                     .offset(1)  # The last one is the ine we are cancelling
+                     .limit(1)).one()
+        self.task.last_execution = last_exec.time
+        task_mean_execution.invalidate(self.task.id)
+        DBSession.delete(self)
 
 
 notebooks_authorizations = Table('notebooks_authorizations', Base.metadata,

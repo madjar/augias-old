@@ -8,7 +8,7 @@ import dogpile.cache
 cache = dogpile.cache.make_region()
 
 
-class FlashMessage(str):
+class FlashMessage(Markup):
     def __new__(cls, message, level=None):
         self = super().__new__(cls, message)
         self.level = level
@@ -21,7 +21,7 @@ class FlashMessage(str):
             return 'alert-' + self.level
 
 def _flash(request, message, level):
-    request.session.flash(FlashMessage(message, level))
+    request.session.flash(FlashMessage(escape(message), level))
 
 def _make_flash_method(level):
     # partial does not work with methods, and we need an extra method for the closure
