@@ -14,7 +14,7 @@
     ${h.csrf_token(request)}
     <label for="email">Email</label>
     <input id="email" type="email" name="email"/>
-    <div><button type="submit" class="btn">Inviter</button></div>
+    <div><button type="submit" class="btn btn-default">Inviter</button></div>
 </form>
 
 <h3>Invited people</h3>

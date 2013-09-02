@@ -5,7 +5,7 @@
             <div class="pull-right">${task.periodicity} days</div>
             <h4>
                 %if task.suggested:
-                        <i class="icon-thumbs-up"></i>
+                        <span class="glyphicon glyphicon-thumbs-up"></span>
                 %endif
             ${task}</h4>
             % if task.mean_execution:
@@ -21,10 +21,10 @@
 <%def name="display_tasks(tasks, width=4)">
     <% tasks = list(reversed(tasks)) %>
     % while tasks:
-        <div class="row-fluid">
+        <div class="row">
             % for i in range(width):
             % if tasks:
-                    <div class="span${12//width}">${_display_task(tasks.pop())}</div>
+                    <div class="col-md-${12//width}">${_display_task(tasks.pop())}</div>
             % endif
             % endfor
         </div>
@@ -34,10 +34,10 @@
 
 <%def name="display_execution(execution, name=True)">
     %if name:
-        ${execution.task} <span class="muted">by</span>
+        ${execution.task} <span class="text-muted">by</span>
     %endif
     ${execution.executor or "everybody"}
-    <span class="muted">&ndash;</span> ${h.nice_date(execution.time)}
+    <span class="text-muted">&ndash;</span> ${h.nice_date(execution.time)}
     %if execution.length is not None:
         (${execution.length} mins)
     %endif

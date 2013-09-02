@@ -35,6 +35,6 @@
 </table>
 
 
-<p>Legend : total time <span class="muted">(~guessed time)  +  executions with no data and no possible guessing</span></p>
+<p>Legend : total time <span class="text-muted">(~guessed time)  +  executions with no data and no possible guessing</span></p>
 
 <p><a href="${request.resource_path(notebook, 'report', query={'ago':ago+1})}">And before ?</a></p>

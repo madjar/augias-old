@@ -177,7 +177,7 @@ def execute(context, request):
             Task executed
             <input type="hidden" name="id" value="{}"/>
             {}
-            <button class="btn btn-small btn-warning" type="submit">Cancel</button>
+            <button class="btn btn-sm btn-warning" type="submit">Cancel</button>
         </form>""".format(request.resource_path(context, 'cancel'),
                           exec.id,
                           helpers.csrf_token(request))

@@ -4,24 +4,33 @@
 <h2>${task}</h2>
 
 <div class="row">
-    <div class="span3">${mh._display_task(task)}</div>
-    <div class="span9">
+    <div class="col-md-3">${mh._display_task(task)}</div>
+    <div class="col-md-9">
 ##        TODO : aligner ça correctment
         <form id='execution' class="form-inline" method="POST" action="${request.resource_path(task, 'execute')}" style="padding: 10px 0;">
-            <div class="input-append">
-                <input id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
-                <a href="#" class="btn" id="chrono"><i class="icon-time"></i></a>
+        <div class="row">
+            <div class="input-group col-md-3">
+                <input class="form-control" id="executionLength" type="text" name="length" placeholder="Length in minutes"/>
+                <span class="input-group-btn">
+                    <a href="#" class="btn btn-default" id="chrono"><span class="glyphicon glyphicon-time"></span></a>
+                </span>
             </div>
 
-            <select name="executor">
+            <div class="col-md-3">
+            <select class="form-control" name="executor">
                 %for user in task.notebook.users:
                         <option value="${user.email}" ${'selected' if user == request.user else ''}>${user}</option>
                 %endfor
                 <option value="">Collective execution</option>
             </select>
+            </div>
+
             <input type="hidden" name="task_id"/>
             ${h.csrf_token(request)}
+            <div class="col-md-2">
             <button class="btn btn-primary" type="submit">Execute</button>
+            </div>
+        </div>
         </form>
         <p>If you're not sure, leave the duration empty and it will be ignored in the statistics.</p>
     </div>

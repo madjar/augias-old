@@ -100,7 +100,7 @@ class ExecutionTime:
         if self.missing:
             extra += ' + {:d} miss'.format(self.missing)
         if extra:
-            r += '<span class="muted">{}</span>'.format(extra)
+            r += '<span class="text-muted">{}</span>'.format(extra)
         return r
 
 
