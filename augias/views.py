@@ -72,7 +72,7 @@ def notebook_delete_post(context, request):
 
 @view_config(context=Notebook, renderer='notebook.mako')
 def notebook(context, request):
-    tasks = list(context)
+    tasks = Task.query().filter_by(notebook=context).order_by('name').all()
     urgent_tasks = [t for t in tasks if t.emergency >= Task.EMERGENCY_THRESHOLD]
     urgent_tasks.sort(key=attrgetter('emergency'), reverse=True)
 
