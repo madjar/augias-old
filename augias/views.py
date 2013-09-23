@@ -174,15 +174,16 @@ def execute(context, request):
         executor = DBSession.query(User).filter_by(email=executor_email).one() if executor_email else None
         exec = context.execute(executor, length)
         message = """<form style="display:inline" method="POST" action="{}">
-            Task executed
+            Task "{}" executed
             <input type="hidden" name="id" value="{}"/>
             {}
             <button class="btn btn-sm btn-warning" type="submit">Cancel</button>
         </form>""".format(request.resource_path(context, 'cancel'),
+                          context.name,
                           exec.id,
                           helpers.csrf_token(request))
         request.flash_success(Markup(message))
-    return redirect(request, context)
+    return redirect(request, context.notebook)
 
 
 @view_config(context=Task, name='cancel',
