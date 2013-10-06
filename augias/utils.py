@@ -119,12 +119,6 @@ def report_for_range(notebook, begin, end):
         by_person[e.executor].add(e)
         by_task[e.task][e.executor].add(e)
         by_task[e.task]['total'].add(e)
-        if not e.executor:
-            # Add common executions to everybody
-            for person in notebook.users:
-                by_person[person].add(e)
-                by_task[e.task][person].add(e)
-
 
     def sorter(item):
         task, executions = item
