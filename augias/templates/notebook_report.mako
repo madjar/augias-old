@@ -11,7 +11,7 @@
         %for p in persons:
                 <th>${p}</th>
         %endfor
-        <th>Everybody</th>
+        <th>shared execution</th>
         <th>Total</th>
     </tr>
     %for task, task_by_person in by_task:
